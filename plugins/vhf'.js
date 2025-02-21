@@ -20,7 +20,7 @@ let handler = async (m, { conn, participants }) => {
 
 handler.help = ['link'];
 handler.tags = ['group'];
-handler.command = ['رابط'];
+handler.command = ['link','رابط'];
 handler.group = true; // Restrict to group chats
 handler.admin = true; // Restrict to admins only
 
