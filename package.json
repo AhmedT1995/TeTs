@@ -192,6 +192,7 @@
     "domhandler": "^5.0.3",
     "domutils": "^3.1.0",
     "dot-prop": "^5.3.0",
+    "dotenv": "^16.4.7",
     "duplexer2": "^0.1.4",
     "duplexer3": "^0.1.5",
     "duplexify": "^4.1.3",

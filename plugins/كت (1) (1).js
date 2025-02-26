@@ -23,11 +23,29 @@ function arabicToEnglishNumeral(arabicNumeral) {
   return arabicNumeral.replace(/[٠-٩]/g, d => arabicToEnglishMap[d]);
 }
 
+/*************  ✨ Codeium Command ⭐  *************/
+/**
+ * Handles various text commands related to names.
+ * 
+ * The function responds to specific text patterns:
+ * 1. If the message text matches the pattern `كت`, it will randomly select
+ *    a number of names from the predefined list and send them as a response.
+ * 2. If the message text matches the pattern `.كت` followed by a number, and
+ *    the sender is an admin, it updates the number of names to select for the
+ *    next command. The number must be an integer between 1 and 100.
+ * 3. If the sender is not an admin, the function will inform them that the
+ *    command is restricted to admins.
+ * 
+ * The names are selected from a predefined list containing various character
+ * names. The response is sent back to the chat.
+ */
+
+/******  61e91366-64f6-4a9d-a3f2-e0875e7a6036  *******/
 handler.all = async function(m) {
-  let names= [
+let names= [
           'لوفي', 'ناروتو', 'سابو', 'ايس', 'رايلي', 'جيرايا', 'ايتاتشي', 'ساسكي', 'شيسوي', 'يوهان',
           'غوهان', 'آيزن', 'فايوليت', 'نامي', 'هانكوك', 'روبين', 'كاكاشي', 'ريومو', 'ريمورو',
-          'غوكو', 'غوغو', 'كيلوا', 'غون', 'كورابيكا', 'يوسكي', 'ايشيدا', 'ايتيشغو', 'ميناتو', 'رينجي',
+          'غوكو', 'غوغو', 'كيلوا', 'غون', 'كورابيكا', 'يوسكي', 'ايشيدا', 'ايتشيغو', 'ميناتو', 'رينجي',
           'جيمبي', 'انوس', 'سايتاما', 'نيزيكو', 'اوراهارا', 'تانجيرو', 'نويل', 'استا', 'يونو', 'لايت',
           'راينر', 'اثي', 'لوكاس', 'زاك', 'الوكا', 'ماها', 'زينو', 'سيلفا', 'رينغوكو', 'تينغن', 'ميتسوري',
           'تنغن', 'هولمز', 'فريزا', 'فريزر', 'غيومي', 'غيو', 'كينق', 'عبدول', 'علي بابا', 'عبدالله', 'اللحية البيضاء',
@@ -53,34 +71,34 @@ handler.all = async function(m) {
   ];
 
   let response;
-  if (/^كت$/i.test(m.text)) {
-    let selectedNames = [];
-    for (let i = 0; i < currentCount; i++) {
-      let randomIndex = Math.floor(Math.random() * names.length);
-      selectedNames.push(`*${names[randomIndex]}*`);
-    }
-    response = selectedNames.join(', ');
-  } else if (/^\.كت\s*([\د٠-٩]+)?/i.test(m.text)) {
-    let isAdminUser = await isAdmin(m, conn);
-    if (isAdminUser) {
-      let match = m.text.match(/^\.كت\s*([\د٠-٩]+)?/i);
-      let count = match[1] ? parseInt(arabicToEnglishNumeral(match[1])) : 1;
-      if (count > 0 && count <= 100) {
-        currentCount = count;
-        response = `تم تحديث عدد الأسماء إلى ${count}`;
-      } else {
-        response = 'الرجاء إدخال رقم بين 1 و 100';
-      }
+if (/^كت$/i.test(m.text)) {
+  let selectedNames = [];
+  for (let i = 0; i < currentCount; i++) {
+    let randomIndex = Math.floor(Math.random() * names.length);
+    selectedNames.push(`*${names[randomIndex]}*`);
+  }
+  response = selectedNames.join(' '); // Join with " و " for names
+} else if (/^\.كت\s*([\د٠-٩]+)?/i.test(m.text)) {
+  let isAdminUser = await isAdmin(m, conn);
+  if (isAdminUser) {
+    let match = m.text.match(/^\.كت\s*([\d٠-٩]+)?/i);
+    let count = match[1] ? parseInt(arabicToEnglishNumeral(match[1])) : 1;
+    if (count > 0 && count <= 100) {
+      currentCount = count;
+      response = `تم تحديث عدد الأسماء إلى ${count}`;
     } else {
-      response = 'هذا الأمر مخصص للمشرفين فقط.';
+      response = 'الرجاء إدخال رقم بين 1 و 100';
     }
+  } else {
+    response = 'هذا الأمر مخصص للمشرفين فقط.';
   }
+}
 
-  if (response) {
-    await conn.reply(m.chat, response, m);
-  }
+if (response) {
+  await conn.reply(m.chat, response, m);
+}
 
-  return !0;
+return !0;
 };
 
 export default handler;

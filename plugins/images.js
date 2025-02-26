@@ -1,13 +1,22 @@
 import axios from 'axios';
 
+let cooldown = new Set();
+
 let handler = async (m, { conn }) => {
+  if (cooldown.has(m.sender)) {
+    return await conn.sendMessage(m.chat, { text: '⏳ يرجى الانتظار 5 ثواني قبل استخدام هذا الأمر مرة أخرى.' }, { quoted: m });
+  }
+
+  cooldown.add(m.sender);
+  setTimeout(() => {
+    cooldown.delete(m.sender);
+  }, 5000); // 5 seconds cooldown
+
   try {
     let res = (await axios.get(`https://raw.githubusercontent.com/Seiyra/imagesfjsfasfa/refs/heads/main/okay.js`)).data;
 
-    // Log the response to check its structure
     console.log(res);
 
-    // Assuming res is an array of URLs
     if (!Array.isArray(res)) {
       throw new Error('Response is not an array.');
     }

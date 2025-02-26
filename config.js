@@ -7,22 +7,21 @@ import fs from 'fs';
 import moment from 'moment-timezone';
 
 // Define global variables
-global.owner = [['96176337375', '𝓝𝓲𝓷𝓸 - 𝑩𝑶𝑻', true]];
+global.owner = [['96176337375']];
 global.xaxa = 'kaneki';
 global.suittag = ['96176337375'];
 global.prems = ['96176337375'];
-global.packname = '𝓝𝓲𝓷𝓸 - 𝑩𝑶𝑻';
-global.menuvid = 'https://i.imgur.com/id9QGXO.mp4';
-global.author = '★ELTA★';
+global.packname = 'YUKI';
+global.author = '';
 global.wm = '★𝓝𝓲𝓷𝓸 - 𝑩𝑶𝑻 𝐵𝛩𝑇★';
 global.titulowm = '🤖 𝓝𝓲𝓷𝓸 - 𝑩𝑶𝑻 🤖';
 global.titulowm2 = '乂 𝓝𝓲𝓷𝓸 - 𝑩𝑶𝑻 乂';
 global.igfg = '★𝓝𝓲𝓷𝓸&𝑩𝑶𝑻★';
 global.wait = '*⌛ _downloading..._*\n\n*▰▰▰▱▱▱▱▱*';
-global.imagen1 = fs.readFileSync('./Nino.png');
+global.imagen1 = fs.readFileSync('./menu.jpg');
 global.imagen2 = fs.readFileSync('./src/nuevobot.jpg');
 global.imagen3 = fs.readFileSync('./src/Pre Bot Publi.png');
-global.imagen4 = fs.readFileSync('./Nino.png');
+global.imagen4 = fs.readFileSync('./menu.jpg');
 global.mods = [];
 
 // Define date and time variables
@@ -67,7 +66,7 @@ global.fgif = {
       seconds: '999999999',
       gifPlayback: 'true',
       caption: global.bottime,
-      jpegThumbnail: fs.readFileSync('./Nino.png')
+      jpegThumbnail: fs.readFileSync('./menu.jpg')
     }
   }
 };
@@ -90,7 +89,6 @@ watchFile(file, () => {
 // config.js
 
 export const packname = '𝑬𝒍𝒕𝒂 - 𝑩𝑶𝑻';
-export const menuvid = 'https://i.imgur.com/id9QGXO.mp4';
 
 // Other exports or global variables if needed
 

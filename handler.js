@@ -1176,12 +1176,13 @@ export async function handler(chatUpdate) {
               const messageNumber = user.bannedMessageCount + 1;
 const messageText = `
 ╔═════════════════════════╗
- ❰ ⚠️ ❱ *¡USUARIO BANEADO!* ❰ ⚠️ ❱
-—◉ *Aviso ${messageNumber}/3 (Total: 3)*
-—◉ ${user.bannedReason ? `\n*Motivo:* ${user.bannedReason}` : '*Motivo:* Sin especificar'}
-—◉ *Si consideras que esto es un error y cuentas con pruebas, puedes comunicarte con el propietario del Bot para apelar la suspensión.*
-—◉ *Contacto para apelaciones:* wa.me/5219992095479
+ ❰ ⚠️ ❱ *USER BANNED!* ❰ ⚠️ ❱
+—◉ *Warning ${messageNumber}/3 (Total: 3)*
+—◉ ${user.bannedReason ? `\n*Reason:* ${user.bannedReason}` : '*Reason:* Not specified'}
+—◉ *If you believe this is a mistake and have proof, you can contact the Bot owner to appeal the suspension.*
+—◉ *Appeal contact:* wa.me/96176337375
 ╚═════════════════════════╝
+
                `.trim();
               m.reply(messageText);
               user.bannedMessageCount++;
@@ -1433,8 +1434,8 @@ export async function participantsUpdate({id, participants, action}) {
             const userPrefix = antiArab.some((prefix) => user.startsWith(prefix));
             const botTt2 = groupMetadata.participants.find((u) => this.decodeJid(u.id) == this.user.jid) || {};
             const isBotAdminNn = botTt2?.admin === 'admin' || false;
-            text = (action === 'add' ? (chat.sWelcome || this.welcome || conn.welcome || 'Welcome, @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || '*𝚂𝙸𝙽 𝙳𝙴𝚂𝙲𝚁𝙸𝙿𝙲𝙸𝙾𝙽*') :
-                              (chat.sBye || this.bye || conn.bye || 'Bye, @user!')).replace('@user', '@' + user.split('@')[0]);
+            text = (action === 'add' ? (chat.sWelcome || this.welcome || conn.welcome || 'انرت..., @user!').replace('@subject', await this.getName(id)).replace('@desc', groupMetadata.desc?.toString() || '*𝚂𝙸𝙽 𝙳𝙴𝚂𝙲𝚁𝙸𝙿𝙲𝙸𝙾𝙽*') :
+                              (chat.sBye || this.bye || conn.bye || 'وداعا..., @user!')).replace('@user', '@' + user.split('@')[0]);
 
             if (userPrefix && chat.antiArab && botTt.restrict && isBotAdminNn && action === 'add') {
               const responseb = await this.groupParticipantsUpdate(id, [user], 'remove');
@@ -1539,21 +1540,23 @@ let date = d.toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'nu
 
 global.dfail = (type, m, conn) => {
   const msg = {
-    rowner: '╮───────────────╭ـ\n│ *➣ الميزه دي للمطور بس! ┇❌*\n╯───────────────╰ـ',
-      owner: '╮───────────────╭ـ\n│ *➣ الميزه دي للمطور بس! ┇❌*\n╯───────────────╰ـ',
-      mods: '╮───────────────╭ـ\n│ *➣ الميزه دي لمالك البوت فقط! ┇❌*\n╯───────────────╰ـ',
-      premium: '╮───────────────╭ـ\n│ *➣ الميزه دي للأعضاء المميزين فقط! ┇❌*\n╯───────────────╰ـ',
-      group: '╮───────────────╭ـ\n│ *➣ الميزه دي في الجروبات فقط! ┇❌*\n╯───────────────╰ـ',
-      private: '╮───────────────╭ـ\n│ *➣ الميزه دي في الخاص  فقط! ┇❌*\n╯───────────────╰ـ',
-      admin: '╮───────────────╭ـ\n│ *➣ صير مشرف و ارجع! ┇❌*\n╯───────────────╰ـ',
-      botAdmin: '╮───────────────╭ـ\n│ *➣ ارفع البوت ادمن الاول! ┇❌*\n╯───────────────╰ـ',
-      unreg: '*[ لحظة !! انت مش مسجل ]*\n\n*『 سجل الامر عشان تفعله 』*\n*➣ #تفعيل الاسم.السن\n*➣مثل : #تفعيل سوكونا.18',
-      restrict: '*╮───────────────╭ـ\n│ *➣ تم الغاء الأمر من قبل المطور! ┇👑*\n╯───────────────╰ـ',
+    rowner: '╮───────────────╭ـ\n│ *➣ هذه الميزة للمطور فقط! ┇❌*\n╯───────────────╰ـ',
+    owner: '╮───────────────╭ـ\n│ *➣ هذه الميزة للمطور فقط! ┇❌*\n╯───────────────╰ـ',
+    mods: '╮───────────────╭ـ\n│ *➣ هذه الميزة لمالك البوت فقط! ┇❌*\n╯───────────────╰ـ',
+    premium: '╮───────────────╭ـ\n│ *➣ هذه الميزة للأعضاء المميزين فقط! ┇❌*\n╯───────────────╰ـ',
+    private: '╮───────────────╭ـ\n│ *➣ هذه الميزة في الخاص فقط! ┇❌*\n╯───────────────╰ـ',
+    admin: '╮───────────────╭ـ\n│ *➣ كن مشرفًا وارجع! ┇❌*\n╯───────────────╰ـ',
+    botAdmin: '╮───────────────╭ـ\n│ *➣ يجب رفع البوت كمدير أول! ┇❌*\n╯───────────────╰ـ',
+    unreg: '*[ لحظة !! أنت غير مسجل ]*\n\n*『 سجل الأمر لتفعيله 』*\n*➣ #تفعيل الاسم.السن\n*➣ مثل: #تفعيل سوكونا.18',
+    restrict: '*╮───────────────╭ـ\n│ *➣ تم إلغاء الأمر من قبل المطور! ┇👑*\n╯───────────────╰ـ',
   }[type];
+  
   const aa = {quoted: m, userJid: conn.user.jid};
-  const prep = generateWAMessageFromContent(m.chat, {extendedTextMessage: {text: msg, contextInfo: {externalAdReply: {title: '[ ⚠ ] دعوه - للجروب', body: 'ᴛʜᴇ Elta - ʙᴏᴛ', thumbnail: imagen1, sourceUrl: ''}}}}, aa);
+  const prep = generateWAMessageFromContent(m.chat, {extendedTextMessage: {text: msg}}, aa);
+  
   if (msg) return conn.relayMessage(m.chat, prep.message, {messageId: prep.key.id});
 };
+
 
 const file = global.__filename(import.meta.url, true);
 watchFile(file, async () => {
