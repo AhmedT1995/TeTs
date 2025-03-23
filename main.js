@@ -5,7 +5,7 @@ import path, {join} from 'path';
 import {fileURLToPath, pathToFileURL} from 'url';
 import {platform} from 'process';
 import * as ws from 'ws';
-import {readdirSync, statSync, unlinkSync, existsSync, readFileSync, rmSync, watch} from 'fs';
+import {readdirSync, statSync, unlinkSync, existsSync, readFileSync, rmSync, watch, stat} from 'fs';
 import yargs from 'yargs';
 import {spawn} from 'child_process';
 import lodash from 'lodash';
@@ -50,7 +50,7 @@ global.prefix = new RegExp('^[' + (opts['prefix'] || '*/i!#$%+£¢€¥^°=¶∆
 
 global.db = new Low(/https?:\/\//.test(opts['db'] || '') ? new cloudDBAdapter(opts['db']) : new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`));
 
-global.DATABASE = global.db; 
+global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
   if (global.db.READ) {
     return new Promise((resolve) => setInterval(async function() {
@@ -77,8 +77,6 @@ global.loadDatabase = async function loadDatabase() {
 };
 loadDatabase();
 
-/* Creditos a Otosaka (https://wa.me/51993966345) */
-
 global.chatgpt = new Low(new JSONFile(path.join(__dirname, '/db/chatgpt.json')));
 global.loadChatgptDB = async function loadChatgptDB() {
   if (global.chatgpt.READ) {
@@ -101,8 +99,6 @@ global.loadChatgptDB = async function loadChatgptDB() {
   global.chatgpt.chain = lodash.chain(global.chatgpt.data);
 };
 loadChatgptDB();
-
-/* ------------------------------------------------*/
 
 global.authFile = `MyvenomSession`;
 const {state, saveState, saveCreds} = await useMultiFileAuthState(global.authFile);
@@ -139,7 +135,7 @@ const connectionOptions = {
 global.conn = makeWASocket(connectionOptions);
 conn.isInit = false;
 conn.well = false;
-conn.logger.info(`Ƈᴀʀɢᴀɴᴅᴏ．．．\n`);
+conn.logger.info(`Loading...\n`);
 
 if (!opts['test']) {
   if (global.db) {
@@ -151,25 +147,6 @@ if (!opts['test']) {
 }
 
 if (opts['server']) (await import('./server.js')).default(global.conn, PORT);
-
-
-/* Y ese fue el momazo mas bueno del mundo
-        Aunque no dudara tan solo un segundo
-        Mas no me arrepiento de haberme reido
-        Por que la grasa es un sentimiento
-        Y ese fue el momazo mas bueno del mundo
-        Aunque no dudara tan solo un segundo
-        que me arrepiento de ser un grasoso
-        Por que la grasa es un sentimiento
-        - El waza 👻👻👻👻 (Aiden)            
-
-   Yo tambien se hacer momazos Aiden...
-        ahi te va el ajuste de los borrados
-        inteligentes de las sesiones y de los sub-bot
-        By (Rey Endymion 👺👍🏼) 
-
-   Ninguno es mejor que tilin god
-        - atte: sk1d             */
 
 function clearTmp() {
   const tmp = [tmpdir(), join(__dirname, './tmp')];
@@ -192,7 +169,7 @@ prekey = [...prekey, ...filesFolderPreKeys]
 filesFolderPreKeys.forEach(files => {
 unlinkSync(`./MyvenomSession/${files}`)
 })
-} 
+}
 
 function purgeSessionSB() {
 try {
@@ -209,9 +186,9 @@ unlinkSync(`./jadibts/${directorio}/${fileInDir}`)
 })
 }
 })
-if (SBprekey.length === 0) return; //console.log(chalk.cyanBright(`=> No hay archivos por eliminar.`))
+if (SBprekey.length === 0) return;
 } catch (err) {
-console.log(chalk.bold.red(`=> Algo salio mal durante la eliminación, archivos no eliminados`))
+console.log(chalk.bold.red(`=> Something went wrong during deletion, files not deleted`))
 }}
 
 function purgeOldFiles() {
@@ -224,64 +201,43 @@ files.forEach(file => {
 const filePath = path.join(dir, file)
 stat(filePath, (err, stats) => {
 if (err) throw err;
-if (stats.isFile() && stats.mtimeMs < oneHourAgo && file !== 'creds.json') { 
-unlinkSync(filePath, err => {  
+if (stats.isFile() && stats.mtimeMs < oneHourAgo && file !== 'creds.json') {
+unlinkSync(filePath, err => {
 if (err) throw err
-console.log(chalk.bold.green(`Archivo ${file} borrado con éxito`))
+console.log(chalk.bold.green(`File ${file} successfully deleted`))
 })
-} else {  
-console.log(chalk.bold.red(`Archivo ${file} no borrado` + err))
+} else {
+console.log(chalk.bold.red(`File ${file} not deleted` + err))
 } }) }) }) })
 }
 
 async function connectionUpdate(update) {
-  const {connection, lastDisconnect, isNewLogin} = update;
+  const { connection, lastDisconnect, isNewLogin } = update;
   global.stopped = connection;
   if (isNewLogin) conn.isInit = true;
   const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
+
   if (code && code !== DisconnectReason.loggedOut && conn?.ws.socket == null) {
     await global.reloadHandler(true).catch(console.error);
-    //console.log(await global.reloadHandler(true).catch(console.error));
-    global.timestamp.connect = new Date;
+    global.timestamp.connect = new Date();
   }
+
   if (global.db.data == null) loadDatabase();
+
   if (update.qr != 0 && update.qr != undefined) {
-    console.log(chalk.yellow('🚩ㅤEscanea este codigo QR, el codigo QR expira en 60 segundos.'));
+    console.log(chalk.yellow('Scan this QR code, the QR code expires in 60 seconds.'));
   }
-  if (connection == 'open') {
-    console.log(chalk.yellow('▣──────────────────────────────···\n│\n│❧ 𝙲𝙾𝙽𝙴𝙲𝚃𝙰𝙳𝙾 𝙲𝙾𝚁𝚁𝙴𝙲𝚃𝙰𝙼𝙴𝙽𝚃𝙴 𝙰𝙻 𝚆𝙷𝙰𝚃𝚂𝙰𝙿𝙿 ✅\n│\n▣──────────────────────────────···'));
+
+  if (connection === 'open') {
+    console.log(chalk.yellow('Successfully connected to WhatsApp ✅'));
   }
-let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
-if (connection === 'close') {
-    if (reason === DisconnectReason.badSession) {
-        conn.logger.error(`[ ⚠ ] Sesión incorrecta, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`);
-        //process.exit();
-    } else if (reason === DisconnectReason.connectionClosed) {
-        conn.logger.warn(`[ ⚠ ] Conexión cerrada, reconectando...`);
-        process.send('reset');
-    } else if (reason === DisconnectReason.connectionLost) {
-        conn.logger.warn(`[ ⚠ ] Conexión perdida con el servidor, reconectando...`);
-        process.send('reset');
-    } else if (reason === DisconnectReason.connectionReplaced) {
-        conn.logger.error(`[ ⚠ ] Conexión reemplazada, se ha abierto otra nueva sesión. Por favor, cierra la sesión actual primero.`);
-        //process.exit();
-    } else if (reason === DisconnectReason.loggedOut) {
-        conn.logger.error(`[ ⚠ ] Conexion cerrada, por favor elimina la carpeta ${global.authFile} y escanea nuevamente.`);
-        //process.exit();
-    } else if (reason === DisconnectReason.restartRequired) {
-        conn.logger.info(`[ ⚠ ] Reinicio necesario, reinicie el servidor si presenta algún problema.`);
-        //process.send('reset');
-    } else if (reason === DisconnectReason.timedOut) {
-        conn.logger.warn(`[ ⚠ ] Tiempo de conexión agotado, reconectando...`);
-        process.send('reset');
-    } else {
-        conn.logger.warn(`[ ⚠ ] Razón de desconexión desconocida. ${reason || ''}: ${connection || ''}`);
-        //process.exit();
-    }
-}
-  /*if (connection == 'close') {
-    console.log(chalk.yellow(`🚩ㅤConexion cerrada, por favor borre la carpeta ${global.authFile} y reescanee el codigo QR`));
-  }*/
+
+  let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
+
+  if (connection === 'close') {
+    conn.logger.warn(`[ ⚠ ] Disconnected (${reason || 'unknown'}), trying to reconnect...`);
+    setTimeout(() => process.send('reset'), 1000);
+  }
 }
 
 process.on('uncaughtException', console.error);
@@ -314,7 +270,6 @@ global.reloadHandler = async function(restatConn) {
     conn.ev.off('creds.update', conn.credsUpdate);
   }
 
-
   conn.handler = handler.handler.bind(global.conn);
   conn.participantsUpdate = handler.participantsUpdate.bind(global.conn);
   conn.groupsUpdate = handler.groupsUpdate.bind(global.conn);
@@ -341,36 +296,6 @@ global.reloadHandler = async function(restatConn) {
   isInit = false;
   return true;
 };
-
-/*
-
-const pluginFolder = join(__dirname, './plugins');
-const pluginFilter = filename => /\.js$/.test(filename);
-global.plugins = {};
-
-async function filesInit(folder) {
-  for (let filename of readdirSync(folder).filter(pluginFilter)) {
-    try {
-      let file = join(folder, filename);
-      const module = await import(file);
-      global.plugins[file] = module.default || module;
-    } catch (e) {
-      console.error(e);
-      delete global.plugins[filename];
-    }
-  }
-
-  for (let subfolder of readdirSync(folder)) {
-    const subfolderPath = join(folder, subfolder);
-    if (statSync(subfolderPath).isDirectory()) {
-      await filesInit(subfolderPath);
-    }
-  }
-}
-
-await filesInit(pluginFolder).then(_ => Object.keys(global.plugins)).catch(console.error);
-
-*/
 
 const pluginFolder = global.__dirname(join(__dirname, './plugins/index'));
 const pluginFilter = (filename) => /\.js$/.test(filename);
@@ -446,22 +371,22 @@ async function _quickTest() {
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   const a = await clearTmp();
-  console.log(chalk.cyanBright(`\n▣───────────[ 𝙰𝚄𝚃𝙾𝙲𝙻𝙴𝙰𝚁TMP ]──────────────···\n│\n▣─❧ 𝙰𝚁𝙲𝙷𝙸𝚅𝙾𝚂 𝙴𝙻𝙸𝙼𝙸𝙽𝙰𝙳𝙾𝚂 ✅\n│\n▣───────────────────────────────────────···\n`));
+  console.log(chalk.cyanBright(`\nAUTOCLEARTMP\n\nFILES DELETED ✅\n\n`));
 }, 180000);
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   await purgeSession();
-  console.log(chalk.cyanBright(`\n▣────────[ AUTOPURGESESSIONS ]───────────···\n│\n▣─❧ ARCHIVOS ELIMINADOS ✅\n│\n▣────────────────────────────────────···\n`));
+  console.log(chalk.cyanBright(`\nAUTOPURGESESSIONS\n\nFILES DELETED ✅\n\n`));
 }, 1000 * 60 * 60);
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   await purgeSessionSB();
-  console.log(chalk.cyanBright(`\n▣────────[ AUTO_PURGE_SESSIONS_SUB-BOTS ]───────────···\n│\n▣─❧ ARCHIVOS ELIMINADOS ✅\n│\n▣────────────────────────────────────···\n`));
+  console.log(chalk.cyanBright(`\nAUTO_PURGE_SESSIONS_SUB-BOTS\n\nFILES DELETED ✅\n\n`));
 }, 1000 * 60 * 60);
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   await purgeOldFiles();
-  console.log(chalk.cyanBright(`\n▣────────[ AUTO_PURGE_OLDFILES ]───────────···\n│\n▣─❧ ARCHIVOS ELIMINADOS ✅\n│\n▣────────────────────────────────────···\n`));
+  console.log(chalk.cyanBright(`\nAUTO_PURGE_OLDFILES\n\nFILES DELETED ✅\n\n`));
 }, 1000 * 60 * 60);
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
@@ -476,6 +401,6 @@ function clockString(ms) {
   const h = isNaN(ms) ? '--' : Math.floor(ms / 3600000) % 24;
   const m = isNaN(ms) ? '--' : Math.floor(ms / 60000) % 60;
   const s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60;
-  return [d, ' يوم(s) ️', h, ' ساعه(s) ', m, ' دقيقه(s) ', s, ' ثانيه(s) '].map((v) => v.toString().padStart(2, 0)).join('');
+  return [d, ' day(s) ', h, ' hour(s) ', m, ' minute(s) ', s, ' second(s) '].map((v) => v.toString().padStart(2, 0)).join('');
 }
 _quickTest().catch(console.error);
