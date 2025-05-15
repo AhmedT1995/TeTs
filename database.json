@@ -1,19 +1,51 @@
 {
   "users": {
     "96176337375@s.whatsapp.net": {
-      "exp": 56,
+      "exp": 3651,
       "limit": 10,
       "level": 0,
       "registered": false,
       "banned": false,
       "bannedMessageCount": 0,
       "bannedReason": "",
-      "lastCommandTime": 1742736939237,
+      "lastCommandTime": 1746395352441,
+      "commandCount": 1
+    },
+    "66803874257@s.whatsapp.net": {
+      "exp": 1385,
+      "limit": 10,
+      "level": 0,
+      "registered": false,
+      "banned": false,
+      "bannedMessageCount": 0,
+      "bannedReason": "",
+      "lastCommandTime": 1746394988510,
       "commandCount": 1
     }
   },
   "chats": {
     "120363362316771684@g.us": {
+      "isBanned": false,
+      "welcome": true,
+      "detect": true,
+      "detect2": false,
+      "sWelcome": "",
+      "sBye": "",
+      "sPromote": "",
+      "sDemote": "",
+      "antidelete": false,
+      "modohorny": true,
+      "autosticker": false,
+      "audios": true,
+      "antiviewonce": false,
+      "antiToxic": false,
+      "antiTraba": false,
+      "antiporno": false,
+      "modoadmin": false,
+      "simi": false,
+      "expired": 0
+    },
+    "17189257098@s.whatsapp.net": {
       "isBanned": false,
       "welcome": true,
       "detect": true,
@@ -39,14 +71,20 @@
     "menu.js": {
       "total": 0,
       "success": 0,
-      "last": 1742736941150,
-      "lastSuccess": 1742736941150
+      "last": 1746395354113,
+      "lastSuccess": 1746395354113
     },
     "profiles.js": {
       "total": 0,
       "success": 0,
       "last": 1742736932244,
       "lastSuccess": 1742736932244
+    },
+    "images.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1746395082802,
+      "lastSuccess": 1746395082802
     }
   },
   "msgs": {},

@@ -130,7 +130,7 @@ const gameData = [
     { question: 'كتاب زيريف', answers: [ 'اي ان دي' ] },
     { question: 'ابن ناروتو', answers: [ 'بوروتو' ] },
     { question: 'أم ناروتو', answers: [ 'كوشينا' ] },
-    { question: 'زوجة هاشيراما', answers: [ 'مبتو' ] },
+    { question: 'زوجة هاشيراما', answers: [ 'ميتو' ] },
     {
       question: 'أوميني كامل',
       answers: [ 'دايكي اوميني', 'اوميني دايكي' ]
