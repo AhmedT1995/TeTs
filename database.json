@@ -21,6 +21,28 @@
       "bannedReason": "",
       "lastCommandTime": 1746394988510,
       "commandCount": 1
+    },
+    "268165007294474@lid": {
+      "exp": 261,
+      "limit": 10,
+      "level": 0,
+      "registered": false,
+      "banned": false,
+      "bannedMessageCount": 0,
+      "bannedReason": "",
+      "lastCommandTime": 1747295661062,
+      "commandCount": 1
+    },
+    "212790363086895@lid": {
+      "exp": 25,
+      "limit": 10,
+      "level": 0,
+      "registered": false,
+      "banned": false,
+      "bannedMessageCount": 0,
+      "bannedReason": "",
+      "lastCommandTime": 1747293810308,
+      "commandCount": 1
     }
   },
   "chats": {
@@ -65,14 +87,35 @@
       "modoadmin": false,
       "simi": false,
       "expired": 0
+    },
+    "120363404364362942@g.us": {
+      "isBanned": false,
+      "welcome": true,
+      "detect": true,
+      "detect2": false,
+      "sWelcome": "",
+      "sBye": "",
+      "sPromote": "",
+      "sDemote": "",
+      "antidelete": false,
+      "modohorny": true,
+      "autosticker": false,
+      "audios": true,
+      "antiviewonce": false,
+      "antiToxic": false,
+      "antiTraba": false,
+      "antiporno": false,
+      "modoadmin": false,
+      "simi": false,
+      "expired": 0
     }
   },
   "stats": {
     "menu.js": {
       "total": 0,
       "success": 0,
-      "last": 1746395354113,
-      "lastSuccess": 1746395354113
+      "last": 1747295666512,
+      "lastSuccess": 1747295666512
     },
     "profiles.js": {
       "total": 0,
@@ -85,6 +128,12 @@
       "success": 0,
       "last": 1746395082802,
       "lastSuccess": 1746395082802
+    },
+    "tagall.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1747293718425,
+      "lastSuccess": 1747293718425
     }
   },
   "msgs": {},
