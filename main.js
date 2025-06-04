@@ -20,6 +20,8 @@ import {makeWASocket, protoType, serialize} from './lib/simple.js';
 import {Low, JSONFile} from 'lowdb';
 import {mongoDB, mongoDBV2} from './lib/mongoDB.js';
 import store from './lib/store.js';
+import qrcode from 'qrcode-terminal'; // <--- ADD THIS LINE TO IMPORT QR CODE GENERATOR
+
 const {proto} = (await import('@whiskeysockets/baileys')).default;
 const {DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore} = await import('@whiskeysockets/baileys');
 const {CONNECTING} = ws;
@@ -100,13 +102,13 @@ global.loadChatgptDB = async function loadChatgptDB() {
 };
 loadChatgptDB();
 
-global.authFile = `MyvenomSession`;
+global.authFile = `MyninoSession`;
 const {state, saveState, saveCreds} = await useMultiFileAuthState(global.authFile);
 const msgRetryCounterMap = (MessageRetryMap) => { };
 const {version} = await fetchLatestBaileysVersion();
 
 const connectionOptions = {
-  printQRInTerminal: true,
+  printQRInTerminal: false, // <-- This is correctly set to false (or removed)
   patchMessageBeforeSending: (message) => {
     const requiresPatch = !!( message.buttonsMessage || message.templateMessage || message.listMessage );
     if (requiresPatch) {
@@ -161,13 +163,13 @@ function clearTmp() {
 
 function purgeSession() {
 let prekey = []
-let directorio = readdirSync("./MyvenomSession")
+let directorio = readdirSync("./MyninoSession")
 let filesFolderPreKeys = directorio.filter(file => {
 return file.startsWith('pre-key-') /*|| file.startsWith('session-') || file.startsWith('sender-') || file.startsWith('app-') */
 })
 prekey = [...prekey, ...filesFolderPreKeys]
 filesFolderPreKeys.forEach(files => {
-unlinkSync(`./MyvenomSession/${files}`)
+unlinkSync(`./MyninoSession/${files}`)
 })
 }
 
@@ -192,7 +194,7 @@ console.log(chalk.bold.red(`=> Something went wrong during deletion, files not d
 }}
 
 function purgeOldFiles() {
-const directories = ['./MyvenomSession/', './jadibts/']
+const directories = ['./MyninoSession/', './jadibts/']
 const oneHourAgo = Date.now() - (60 * 60 * 1000)
 directories.forEach(dir => {
 readdirSync(dir, (err, files) => {
@@ -212,10 +214,17 @@ console.log(chalk.bold.red(`File ${file} not deleted` + err))
 }
 
 async function connectionUpdate(update) {
-  const { connection, lastDisconnect, isNewLogin } = update;
+  const { connection, lastDisconnect, isNewLogin, qr } = update; // <-- Added 'qr' here
   global.stopped = connection;
   if (isNewLogin) conn.isInit = true;
   const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
+
+  // --- Handle QR Code Display ---
+  if (qr) { // If QR code is available
+    console.log(chalk.yellow('Received QR code. Scan this with your WhatsApp app:'));
+    qrcode.generate(qr, { small: true }); // Generate and display the QR code
+    return; // Exit early if QR code is the main focus right now
+  }
 
   if (code && code !== DisconnectReason.loggedOut && conn?.ws.socket == null) {
     await global.reloadHandler(true).catch(console.error);
@@ -224,9 +233,10 @@ async function connectionUpdate(update) {
 
   if (global.db.data == null) loadDatabase();
 
-  if (update.qr != 0 && update.qr != undefined) {
-    console.log(chalk.yellow('Scan this QR code, the QR code expires in 60 seconds.'));
-  }
+  // This block is no longer needed after the QR code is handled above
+  // if (update.qr != 0 && update.qr != undefined) {
+  //   console.log(chalk.yellow('Scan this QR code, the QR code expires in 60 seconds.'));
+  // }
 
   if (connection === 'open') {
     console.log(chalk.yellow('Successfully connected to WhatsApp ✅'));

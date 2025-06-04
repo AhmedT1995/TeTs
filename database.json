@@ -1,7 +1,7 @@
 {
   "users": {
     "96176337375@s.whatsapp.net": {
-      "exp": 3651,
+      "exp": 3660,
       "limit": 10,
       "level": 0,
       "registered": false,
@@ -23,14 +23,14 @@
       "commandCount": 1
     },
     "268165007294474@lid": {
-      "exp": 261,
+      "exp": 273,
       "limit": 10,
       "level": 0,
       "registered": false,
       "banned": false,
       "bannedMessageCount": 0,
       "bannedReason": "",
-      "lastCommandTime": 1747295661062,
+      "lastCommandTime": 1749059119634,
       "commandCount": 1
     },
     "212790363086895@lid": {
@@ -89,6 +89,48 @@
       "expired": 0
     },
     "120363404364362942@g.us": {
+      "isBanned": false,
+      "welcome": true,
+      "detect": true,
+      "detect2": false,
+      "sWelcome": "",
+      "sBye": "",
+      "sPromote": "",
+      "sDemote": "",
+      "antidelete": false,
+      "modohorny": true,
+      "autosticker": false,
+      "audios": true,
+      "antiviewonce": false,
+      "antiToxic": false,
+      "antiTraba": false,
+      "antiporno": false,
+      "modoadmin": false,
+      "simi": false,
+      "expired": 0
+    },
+    "120363359421653427@g.us": {
+      "isBanned": false,
+      "welcome": true,
+      "detect": true,
+      "detect2": false,
+      "sWelcome": "",
+      "sBye": "",
+      "sPromote": "",
+      "sDemote": "",
+      "antidelete": false,
+      "modohorny": true,
+      "autosticker": false,
+      "audios": true,
+      "antiviewonce": false,
+      "antiToxic": false,
+      "antiTraba": false,
+      "antiporno": false,
+      "modoadmin": false,
+      "simi": false,
+      "expired": 0
+    },
+    "96176337375@s.whatsapp.net": {
       "isBanned": false,
       "welcome": true,
       "detect": true,
