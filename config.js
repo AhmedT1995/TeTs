@@ -19,8 +19,8 @@ global.titulowm2 = '乂 𝓝𝓲𝓷𝓸 - 𝑩𝑶𝑻 乂';
 global.igfg = '★𝓝𝓲𝓷𝓸&𝑩𝑶𝑻★';
 global.wait = '*⌛ _downloading..._*\n\n*▰▰▰▱▱▱▱▱*';
 global.imagen1 = fs.readFileSync('./menu.jpg');
-global.imagen2 = fs.readFileSync('./src/nuevobot.jpg');
-global.imagen3 = fs.readFileSync('./src/Pre Bot Publi.png');
+global.imagen2 = fs.readFileSync('./menu.jpg');
+global.imagen3 = fs.readFileSync('./menu.jpg');
 global.imagen4 = fs.readFileSync('./menu.jpg');
 global.mods = [];
 

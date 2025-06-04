@@ -23,14 +23,14 @@
       "commandCount": 1
     },
     "268165007294474@lid": {
-      "exp": 273,
+      "exp": 416,
       "limit": 10,
       "level": 0,
       "registered": false,
       "banned": false,
       "bannedMessageCount": 0,
       "bannedReason": "",
-      "lastCommandTime": 1749059119634,
+      "lastCommandTime": 1749059616694,
       "commandCount": 1
     },
     "212790363086895@lid": {
@@ -156,8 +156,8 @@
     "menu.js": {
       "total": 0,
       "success": 0,
-      "last": 1747295666512,
-      "lastSuccess": 1747295666512
+      "last": 1749059495883,
+      "lastSuccess": 1749059495883
     },
     "profiles.js": {
       "total": 0,
@@ -168,8 +168,8 @@
     "images.js": {
       "total": 0,
       "success": 0,
-      "last": 1746395082802,
-      "lastSuccess": 1746395082802
+      "last": 1749059619404,
+      "lastSuccess": 1749059619404
     },
     "tagall.js": {
       "total": 0,
