@@ -32,7 +32,10 @@ let handler = async (m, { conn, usedPrefix, command, text }) => {
     try {
       let user = `${number}@s.whatsapp.net`;
       await conn.groupParticipantsUpdate(m.chat, [user], 'promote');
-      m.reply(`✅ User promoted`);
+      const promoter = m.sender.split('@')[0];
+      const promoted = user.split('@')[0];
+      const message = `+${promoter} has promoted +${promoted}`;
+      conn.reply(m.chat, message, m);
     } catch (e) {
       console.error(e);
       m.reply(`❌ Failed to promote user`);

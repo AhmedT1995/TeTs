@@ -17,7 +17,8 @@ import P from 'pino';
 import pino from 'pino';
 import {Boom} from '@hapi/boom';
 import {makeWASocket, protoType, serialize} from './lib/simple.js';
-import {Low, JSONFile} from 'lowdb';
+import { Low } from 'lowdb';
+import { JSONFile } from 'lowdb/node';
 import {mongoDB, mongoDBV2} from './lib/mongoDB.js';
 import store from './lib/store.js';
 import qrcode from 'qrcode-terminal';
@@ -50,7 +51,21 @@ const __dirname = global.__dirname(import.meta.url);
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse());
 global.prefix = new RegExp('^[' + (opts['prefix'] || '*/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.\\-.@aA').replace(/[|\\{}()[\]^$+*?.\-\^]/g, '\\$&') + ']');
 
-global.db = new Low(/https?:\/\//.test(opts['db'] || '') ? new cloudDBAdapter(opts['db']) : new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`));
+const defaultData = {
+  users: {},
+  chats: {},
+  stats: {},
+  msgs: {},
+  sticker: {},
+  settings: {}
+};
+
+global.db = new Low(
+  /https?:\/\//.test(opts['db'] || '') 
+    ? new cloudDBAdapter(opts['db']) 
+    : new JSONFile(`${opts._[0] ? opts._[0] + '_' : ''}database.json`),
+  defaultData
+);
 
 global.DATABASE = global.db;
 global.loadDatabase = async function loadDatabase() {
@@ -66,20 +81,27 @@ global.loadDatabase = async function loadDatabase() {
   global.db.READ = true;
   await global.db.read().catch(console.error);
   global.db.READ = null;
-  global.db.data = {
-    users: {},
-    chats: {},
-    stats: {},
-    msgs: {},
-    sticker: {},
-    settings: {},
-    ...(global.db.data || {}),
-  };
+global.db.data ||= {
+  users: {},
+  chats: {},
+  stats: {},
+  msgs: {},
+  sticker: {},
+  settings: {},
+};
   global.db.chain = chain(global.db.data);
 };
 loadDatabase();
 
-global.chatgpt = new Low(new JSONFile(path.join(__dirname, '/db/chatgpt.json')));
+const defaultChatGPTData = {
+  sessions: {},
+  users: {}
+};
+
+global.chatgpt = new Low(
+  new JSONFile(path.join(__dirname, '/db/chatgpt.json')),
+  defaultChatGPTData
+);
 global.loadChatgptDB = async function loadChatgptDB() {
   if (global.chatgpt.READ) {
     return new Promise((resolve) =>
