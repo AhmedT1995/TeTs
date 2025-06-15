@@ -20,7 +20,7 @@ import {makeWASocket, protoType, serialize} from './lib/simple.js';
 import {Low, JSONFile} from 'lowdb';
 import {mongoDB, mongoDBV2} from './lib/mongoDB.js';
 import store from './lib/store.js';
-import qrcode from 'qrcode-terminal'; // <--- ADD THIS LINE TO IMPORT QR CODE GENERATOR
+import qrcode from 'qrcode-terminal';
 
 const {proto} = (await import('@whiskeysockets/baileys')).default;
 const {DisconnectReason, useMultiFileAuthState, MessageRetryMap, fetchLatestBaileysVersion, makeCacheableSignalKeyStore} = await import('@whiskeysockets/baileys');
@@ -108,7 +108,7 @@ const msgRetryCounterMap = (MessageRetryMap) => { };
 const {version} = await fetchLatestBaileysVersion();
 
 const connectionOptions = {
-  printQRInTerminal: false, // <-- This is correctly set to false (or removed)
+  printQRInTerminal: false,
   patchMessageBeforeSending: (message) => {
     const requiresPatch = !!( message.buttonsMessage || message.templateMessage || message.listMessage );
     if (requiresPatch) {
@@ -129,9 +129,18 @@ const connectionOptions = {
     creds: state.creds,
     keys: makeCacheableSignalKeyStore(state.keys, pino({level: 'silent'})),
   },
-  browser: ['Elta', 'Safari', '1.0.0'],
+  // Use standard WhatsApp Web browser identification
+  browser: ['WhatsApp Web', 'Chrome', '4.0.0'],
   version,
   defaultQueryTimeoutMs: undefined,
+  // Remove custom options that might cause LinkedIn routing
+  syncFullHistory: false,
+  markOnlineOnConnect: false, // Don't auto-mark online
+  fireInitQueries: false, // Don't fire custom init queries
+  generateHighQualityLinkPreview: false,
+  // Ensure proper WhatsApp client behavior
+  emitOwnEvents: false,
+  // Remove any custom user agent or options
 };
 
 global.conn = makeWASocket(connectionOptions);
@@ -214,16 +223,16 @@ console.log(chalk.bold.red(`File ${file} not deleted` + err))
 }
 
 async function connectionUpdate(update) {
-  const { connection, lastDisconnect, isNewLogin, qr } = update; // <-- Added 'qr' here
+  const { connection, lastDisconnect, isNewLogin, qr } = update;
   global.stopped = connection;
   if (isNewLogin) conn.isInit = true;
   const code = lastDisconnect?.error?.output?.statusCode || lastDisconnect?.error?.output?.payload?.statusCode;
 
-  // --- Handle QR Code Display ---
-  if (qr) { // If QR code is available
+  // Handle QR Code Display
+  if (qr) {
     console.log(chalk.yellow('Received QR code. Scan this with your WhatsApp app:'));
-    qrcode.generate(qr, { small: true }); // Generate and display the QR code
-    return; // Exit early if QR code is the main focus right now
+    qrcode.generate(qr, { small: true });
+    return;
   }
 
   if (code && code !== DisconnectReason.loggedOut && conn?.ws.socket == null) {
@@ -233,13 +242,23 @@ async function connectionUpdate(update) {
 
   if (global.db.data == null) loadDatabase();
 
-  // This block is no longer needed after the QR code is handled above
-  // if (update.qr != 0 && update.qr != undefined) {
-  //   console.log(chalk.yellow('Scan this QR code, the QR code expires in 60 seconds.'));
-  // }
-
   if (connection === 'open') {
     console.log(chalk.yellow('Successfully connected to WhatsApp ✅'));
+    console.log(chalk.green(`Connected as: ${conn.user?.id || 'Unknown'}`));
+    console.log(chalk.green(`Phone: ${conn.user?.name || 'Unknown'}`));
+    
+    // Don't set custom status immediately - let it remain default
+    setTimeout(async () => {
+      try {
+        // Only update if no status exists
+        const currentStatus = await conn.fetchStatus(conn.user.id).catch(() => null);
+        if (!currentStatus?.status) {
+          await conn.updateProfileStatus('Hey there! I am using WhatsApp.');
+        }
+      } catch (error) {
+        console.log('Could not update profile status:', error.message);
+      }
+    }, 10000); // Wait longer before setting status
   }
 
   let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
@@ -354,6 +373,7 @@ global.reload = async (_ev, filename) => {
 Object.freeze(global.reload);
 watch(pluginFolder, global.reload);
 await global.reloadHandler();
+
 async function _quickTest() {
   const test = await Promise.all([
     spawn('ffmpeg'),
@@ -378,34 +398,43 @@ async function _quickTest() {
   const s = global.support = {ffmpeg, ffprobe, ffmpegWebp, convert, magick, gm, find};
   Object.freeze(global.support);
 }
+
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   const a = await clearTmp();
   console.log(chalk.cyanBright(`\nAUTOCLEARTMP\n\nFILES DELETED ✅\n\n`));
 }, 180000);
+
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   await purgeSession();
   console.log(chalk.cyanBright(`\nAUTOPURGESESSIONS\n\nFILES DELETED ✅\n\n`));
 }, 1000 * 60 * 60);
+
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   await purgeSessionSB();
   console.log(chalk.cyanBright(`\nAUTO_PURGE_SESSIONS_SUB-BOTS\n\nFILES DELETED ✅\n\n`));
 }, 1000 * 60 * 60);
+
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
   await purgeOldFiles();
   console.log(chalk.cyanBright(`\nAUTO_PURGE_OLDFILES\n\nFILES DELETED ✅\n\n`));
 }, 1000 * 60 * 60);
+
 setInterval(async () => {
   if (stopped === 'close' || !conn || !conn.user) return;
-  const status = global.db.data.settings[conn.user.jid] || {};
-  const _uptime = process.uptime() * 1000;
-  const uptime = clockString(_uptime);
-  const bio = `Hi`;
-  await conn.updateProfileStatus(bio).catch((_) => _);
-}, 60000);
+  // Don't constantly update status - this can trigger LinkedIn routing
+  // Only update every hour and with normal WhatsApp status
+  const bio = `Hey there! I am using WhatsApp.`;
+  try {
+    await conn.updateProfileStatus(bio);
+  } catch (error) {
+    // Silently handle errors to avoid spam
+  }
+}, 3600000); // Update every hour instead of every minute
+
 function clockString(ms) {
   const d = isNaN(ms) ? '--' : Math.floor(ms / 86400000);
   const h = isNaN(ms) ? '--' : Math.floor(ms / 3600000) % 24;
@@ -413,4 +442,5 @@ function clockString(ms) {
   const s = isNaN(ms) ? '--' : Math.floor(ms / 1000) % 60;
   return [d, ' day(s) ', h, ' hour(s) ', m, ' minute(s) ', s, ' second(s) '].map((v) => v.toString().padStart(2, 0)).join('');
 }
+
 _quickTest().catch(console.error);

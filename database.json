@@ -1,14 +1,14 @@
 {
   "users": {
     "96176337375@s.whatsapp.net": {
-      "exp": 3660,
+      "exp": 8112,
       "limit": 10,
       "level": 0,
       "registered": false,
       "banned": false,
       "bannedMessageCount": 0,
       "bannedReason": "",
-      "lastCommandTime": 1746395352441,
+      "lastCommandTime": 1749937674782,
       "commandCount": 1
     },
     "66803874257@s.whatsapp.net": {
@@ -23,25 +23,58 @@
       "commandCount": 1
     },
     "268165007294474@lid": {
-      "exp": 416,
+      "exp": 6469,
       "limit": 10,
       "level": 0,
       "registered": false,
       "banned": false,
       "bannedMessageCount": 0,
       "bannedReason": "",
-      "lastCommandTime": 1749059616694,
+      "lastCommandTime": 1749931260232,
       "commandCount": 1
     },
     "212790363086895@lid": {
-      "exp": 25,
+      "exp": 112,
       "limit": 10,
       "level": 0,
       "registered": false,
       "banned": false,
       "bannedMessageCount": 0,
       "bannedReason": "",
-      "lastCommandTime": 1747293810308,
+      "lastCommandTime": 1749930784178,
+      "commandCount": 1
+    },
+    "266876835868686@lid": {
+      "exp": 706,
+      "limit": 10,
+      "level": 0,
+      "registered": false,
+      "banned": false,
+      "bannedMessageCount": 0,
+      "bannedReason": "",
+      "lastCommandTime": 1749311535769,
+      "commandCount": 1
+    },
+    "157913498833100@lid": {
+      "exp": 1827,
+      "limit": 10,
+      "level": 0,
+      "registered": false,
+      "banned": false,
+      "bannedMessageCount": 0,
+      "bannedReason": "",
+      "lastCommandTime": 1749848736814,
+      "commandCount": 1
+    },
+    "141459411988566@lid": {
+      "exp": 949,
+      "limit": 10,
+      "level": 0,
+      "registered": false,
+      "banned": false,
+      "bannedMessageCount": 0,
+      "bannedReason": "",
+      "lastCommandTime": 1749659138369,
       "commandCount": 1
     }
   },
@@ -150,32 +183,167 @@
       "modoadmin": false,
       "simi": false,
       "expired": 0
+    },
+    "120363419111007737@g.us": {
+      "isBanned": false,
+      "welcome": true,
+      "detect": true,
+      "detect2": false,
+      "sWelcome": "",
+      "sBye": "",
+      "sPromote": "",
+      "sDemote": "",
+      "antidelete": false,
+      "modohorny": true,
+      "autosticker": false,
+      "audios": true,
+      "antiviewonce": false,
+      "antiToxic": false,
+      "antiTraba": false,
+      "antiporno": false,
+      "modoadmin": false,
+      "simi": false,
+      "expired": 0
+    },
+    "120363173129421994@newsletter": {
+      "isBanned": false,
+      "welcome": true,
+      "detect": true,
+      "detect2": false,
+      "sWelcome": "",
+      "sBye": "",
+      "sPromote": "",
+      "sDemote": "",
+      "antidelete": false,
+      "modohorny": true,
+      "autosticker": false,
+      "audios": true,
+      "antiviewonce": false,
+      "antiToxic": false,
+      "antiTraba": false,
+      "antiporno": false,
+      "modoadmin": false,
+      "simi": false,
+      "expired": 0
+    },
+    "120363420785714555@g.us": {
+      "isBanned": false,
+      "welcome": true,
+      "detect": true,
+      "detect2": false,
+      "sWelcome": "",
+      "sBye": "",
+      "sPromote": "",
+      "sDemote": "",
+      "antidelete": false,
+      "modohorny": true,
+      "autosticker": false,
+      "audios": true,
+      "antiviewonce": false,
+      "antiToxic": false,
+      "antiTraba": false,
+      "antiporno": false,
+      "modoadmin": false,
+      "simi": false,
+      "expired": 0
     }
   },
   "stats": {
     "menu.js": {
       "total": 0,
       "success": 0,
-      "last": 1749059495883,
-      "lastSuccess": 1749059495883
+      "last": 1749848709519,
+      "lastSuccess": 1749848709519
     },
     "profiles.js": {
       "total": 0,
       "success": 0,
-      "last": 1742736932244,
-      "lastSuccess": 1742736932244
+      "last": 1749661077136,
+      "lastSuccess": 1749661077136
     },
     "images.js": {
       "total": 0,
       "success": 0,
-      "last": 1749059619404,
-      "lastSuccess": 1749059619404
+      "last": 1749937677036,
+      "lastSuccess": 1749937677036
     },
     "tagall.js": {
       "total": 0,
       "success": 0,
-      "last": 1747293718425,
-      "lastSuccess": 1747293718425
+      "last": 1749060036858,
+      "lastSuccess": 1749060036858
+    },
+    "مخفي.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749931250530,
+      "lastSuccess": 1749931250530
+    },
+    "obsolete.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749229387464,
+      "lastSuccess": 1749229387464
+    },
+    "info-speedtest.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749311730208,
+      "lastSuccess": 1749311730208
+    },
+    "ملصق.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749930095660,
+      "lastSuccess": 1749930095660
+    },
+    "restart.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749932052344,
+      "lastSuccess": 1749932052344
+    },
+    "owner.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749317733180,
+      "lastSuccess": 1749317733180
+    },
+    "toimg.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749848683864,
+      "lastSuccess": 1749848683864
+    },
+    "tovid.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749929979991,
+      "lastSuccess": 1749929979991
+    },
+    "hdr.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749848739963,
+      "lastSuccess": 1749848739963
+    },
+    "promote.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749931889775,
+      "lastSuccess": 1749931889775
+    },
+    "demote.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749931834232,
+      "lastSuccess": 1749931834232
+    },
+    "groupset.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1749931903477,
+      "lastSuccess": 1749931903477
     }
   },
   "msgs": {},

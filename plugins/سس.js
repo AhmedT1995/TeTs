@@ -6,24 +6,28 @@ let currentCount = 1;
 let gameState = {
     active: false,
     currentQuestionIndex: -1,
-    responses: {} 
+    responses: {},
+    playerAttempts: {}, // Track all player attempts for current question
+    questionStartTime: 0,
+    answeredBy: null, // Track who answered correctly first
+    allPlayerMessages: {} // Track all messages from players during active question
 };
 
 const gameData = [
     {
-      question: 'إطلاق نيل',
+      question: 'إطلاق نيل',
       answers: [ 'غاميوزا', 'جاميوزا', 'قاميوزا' ]
     },
-    { question: 'إطلاق ستارك', answers: [ 'لوس لوبوس' ] },
-    { question: 'إطلاق غريمجو', answers: [ 'بانترا' ] },
-    { question: 'إطلاق زايلو أبورو', answers: [ 'فورنيكاراس' ] },
-    { question: 'إطلاق يامي', answers: [ 'ارا' ] },
+    { question: 'إطلاق ستارك', answers: [ 'لوس لوبوس' ] },
+    { question: 'إطلاق غريمجو', answers: [ 'بانترا' ] },
+    { question: 'إطلاق زايلو أبورو', answers: [ 'فورنيكاراس' ] },
+    { question: 'إطلاق يامي', answers: [ 'ارا' ] },
     {
-      question: 'إطلاق باراغان',
+      question: 'إطلاق باراغان',
       answers: [ 'اوروغانتي', 'اوروجانتي', 'اوروقانتي' ]
     },
     {
-      question: 'إطلاق الكيورا',
+      question: 'إطلاق الكيورا',
       answers: [
         'مورشيلاجو',
         'مورشيلاغو',
@@ -33,15 +37,15 @@ const gameData = [
         'مورشيلاقو'
       ]
     },
-    { question: 'الإسبادا 3', answers: [ 'نيل' ] },
-    { question: 'الإسبادا 4', answers: [ 'الكيورا' ] },
+    { question: 'الإسبادا 3', answers: [ 'نيل' ] },
+    { question: 'الإسبادا 4', answers: [ 'الكيورا' ] },
     {
-      question: 'الإسبادا 2',
+      question: 'الإسبادا 2',
       answers: [ 'باراغان', 'باراجان', 'باراقان' ]
     },
-    { question: 'الإسبادا 1', answers: [ 'ستارك' ] },
-    { question: 'الأسد الذهبي', answers: [ 'شيكي' ] },
-    { question: 'أقوى مستخدم نين', answers: [ 'نيترو' ] },
+    { question: 'الإسبادا 1', answers: [ 'ستارك' ] },
+    { question: 'الأسد الذهبي', answers: [ 'شيكي' ] },
+    { question: 'أقوى مستخدم نين', answers: [ 'نيترو' ] },
     { question: 'عين الصقر', answers: [ 'ميهوك' ] },
     {
       question: 'الناسك المنحرف',
@@ -57,16 +61,16 @@ const gameData = [
         'غام',       'قام'
       ]
     },
-    { question: 'الوميض الأصفر', answers: [ 'ميناتو' ] },
+    { question: 'الوميض الأصفر', answers: [ 'ميناتو' ] },
     {
       question: 'قدرة غون',
       answers: [ 'جاجانكين', 'غاجانكين', 'قاجانكين' ]
     },
     { question: 'رقم هيسوكا بالاختبار', answers: [ '44', '٤٤' ] },
-    { question: 'رئيس العناكب', answers: [ 'كرولو' ] },
-    { question: 'قائد تومان', answers: [ 'مايكي' ] },
-    { question: 'نائب مايكي', answers: [ 'دراكن' ] },
-    { question: 'القمر العلوي الأول', answers: [ 'كوكوشيبو' ] },
+    { question: 'رئيس العناكب', answers: [ 'كرولو' ] },
+    { question: 'قائد تومان', answers: [ 'مايكي' ] },
+    { question: 'نائب مايكي', answers: [ 'دراكن' ] },
+    { question: 'القمر العلوي الأول', answers: [ 'كوكوشيبو' ] },
     { question: 'القمر العلوي الثاني', answers: [ 'دوما' ] },
     { question: 'القمر العلوي الثالث', answers: [ 'اكازا' ] },
     {
@@ -77,30 +81,30 @@ const gameData = [
       question: 'القمر العلوي الخامس',
       answers: [ 'غيوكو', 'جيوكو', 'قيوكو' ]
     },
-    { question: 'أخت تانجيرو', answers: [ 'نيزوكو' ] },
-    { question: 'ابن أوسين', answers: [ 'اوهون' ] },
-    { question: 'أخت ثورفين', answers: [ 'هيلغا', 'هيلجا', 'هيلقا' ] },
-    { question: 'أب ثورفين', answers: [ 'ثورز' ] },
+    { question: 'أخت تانجيرو', answers: [ 'نيزوكو' ] },
+    { question: 'ابن أوسين', answers: [ 'اوهون' ] },
+    { question: 'أخت ثورفين', answers: [ 'هيلغا', 'هيلجا', 'هيلقا' ] },
+    { question: 'أب ثورفين', answers: [ 'ثورز' ] },
     { question: 'ابن ثورز', answers: [ 'ثورفين' ] },
     { question: 'سيف روجر', answers: [ 'ايس' ] },
-    { question: 'سيف إيتاشي', answers: [ 'توتسوكا' ] },
-    { question: 'سيف أودين', answers: [ 'اينما' ] },
+    { question: 'سيف إيتاشي', answers: [ 'توتسوكا' ] },
+    { question: 'سيف أودين', answers: [ 'اينما' ] },
     { question: 'سيف ميهوك', answers: [ 'يورو' ] },
     { question: 'سيف ريوما', answers: [ 'شوسوي', 'شوزوي' ] },
-    { question: 'صقر الأوتشيها', answers: [ 'ساسكي' ] },
-    { question: 'شبح الأوتشيها', answers: [ 'مادارا' ] },
+    { question: 'صقر الأوتشيها', answers: [ 'ساسكي' ] },
+    { question: 'شبح الأوتشيها', answers: [ 'مادارا' ] },
     { question: 'ملك الظلام', answers: [ 'رايلي' ] },
     { question: 'كلب الزولديك', answers: [ 'ميكي' ] },
     { question: 'كلب الفورجر', answers: [ 'بوند' ] },
     { question: 'ملك الكوينشي', answers: [ 'يوهاباخ', 'يوها باخ' ] },
-    { question: 'أخ إيتوشي ساي', answers: [ 'رين' ] },
-    { question: 'أخ إيتوشي رين', answers: [ 'ساي' ] },
-    { question: 'حبيبة أوكي', answers: [ 'كيو' ] },
-    { question: 'أقوى مخلوق', answers: [ 'كايدو' ] },
+    { question: 'أخ إيتوشي ساي', answers: [ 'رين' ] },
+    { question: 'أخ إيتوشي رين', answers: [ 'ساي' ] },
+    { question: 'حبيبة أوكي', answers: [ 'كيو' ] },
+    { question: 'أقوى مخلوق', answers: [ 'كايدو' ] },
     { question: 'شبح المعجزات', answers: [ 'كوروكو' ] },
     { question: 'رامي الثلاثيات', answers: [ 'ميدوريما' ] },
     { question: 'رامي المعجزات', answers: [ 'ميدوريما' ] },
-    { question: 'أخت بوروتو', answers: [ 'هيماواري' ] },
+    { question: 'أخت بوروتو', answers: [ 'هيماواري' ] },
     {
       question: 'لون عين الكوروتا',
       answers: [ 'قرمزي', 'غرمزي', 'جرمزي' ]
@@ -110,7 +114,7 @@ const gameData = [
     { question: 'مربية لوفي', answers: [ 'دادان' ] },
     { question: 'بطل البحرية', answers: [ 'غارب', 'جارب', 'قارب' ] },
     {
-      question: 'الدراج الأزرق',
+      question: 'الدراج الأزرق',
       answers: [ 'اوكيجي', 'اوكيغي', 'اوكيقي', 'كوزان' ]
     },
     { question: 'سكين كرولو', answers: [ 'بينز' ] },
@@ -123,34 +127,34 @@ const gameData = [
       question: 'رمح اللحية',
       answers: [ 'موراكوموغيري', 'موراكوموجيري', 'موراكوموقيري' ]
     },
-    { question: 'كيميائي الشعلة', answers: [ 'روي' ] },
+    { question: 'كيميائي الشعلة', answers: [ 'روي' ] },
     { question: 'تنين ناتسو', answers: [ 'اغنيل', 'اجنيل', 'اقنيل' ] },
-    { question: 'أكسيد ناتسو', answers: [ 'هابي' ] },
-    { question: 'صاحب إي إن دي', answers: [ 'زيريف' ] },
+    { question: 'أكسيد ناتسو', answers: [ 'هابي' ] },
+    { question: 'صاحب إي إن دي', answers: [ 'زيريف' ] },
     { question: 'كتاب زيريف', answers: [ 'اي ان دي' ] },
     { question: 'ابن ناروتو', answers: [ 'بوروتو' ] },
     { question: 'أم ناروتو', answers: [ 'كوشينا' ] },
     { question: 'زوجة هاشيراما', answers: [ 'ميتو' ] },
     {
-      question: 'أوميني كامل',
+      question: 'أوميني كامل',
       answers: [ 'دايكي اوميني', 'اوميني دايكي' ]
     },
     { question: 'كيسي كامل', answers: [ 'ريوتا كيسي', 'كيسي ريوتا' ] },
-    { question: 'معلم إيتشيغو', answers: [ 'كيسكي' ] },
+    { question: 'معلم إيتشيغو', answers: [ 'كيسكي' ] },
     {
-      question: 'أوراهارا كامل',
+      question: 'أوراهارا كامل',
       answers: [ 'كيسكي اوراهارا', 'اوراهارا كيسكي' ]
     },
-    { question: 'نائب أيزن', answers: [ 'مومو' ] },
-    { question: 'نائب كايدو', answers: [ 'كينغ', 'كينج', 'كينق' ] },
-    { question: 'أقوى جنرال', answers: [ 'اوكي' ] },
-    { question: 'قصر أيزن', answers: [ 'لاس نوشيس' ] },
+    { question: 'نائب أيزن', answers: [ 'مومو' ] },
+    { question: 'نائب كايدو', answers: [ 'كينغ', 'كينج', 'كينق' ] },
+    { question: 'أقوى جنرال', answers: [ 'اوكي' ] },
+    { question: 'قصر أيزن', answers: [ 'لاس نوشيس' ] },
     {
       question: 'سفينة باغي',
       answers: [ 'بيغ', 'بيج', 'بيق', 'بيج توب', 'بيغ توب', 'بيق توب' ]
     },
     { question: 'سفينة شانكس', answers: [ 'ريد فورس' ] },
-    { question: 'سفينة اللحية', answers: [ 'موبيديك' ] },
+    { question: 'سفينة اللحية', answers: [ 'موبي ديك', 'موبيديك' ] },
     {
       question: 'سفينة روجر',
       answers: [ 'اوروجاكسون', 'اوروغاكسون', 'اوروقاكسون' ]
@@ -164,7 +168,7 @@ const gameData = [
       answers: [ 'ساني غو', 'ساني جو', 'ساني قو' ]
     },
     { question: 'وعاء سوكونا', answers: [ 'يوجي', 'يوغي', 'يوقي' ] },
-    { question: 'وعاء إيشيكي', answers: [ 'كاواكي' ] },
+    { question: 'وعاء إيشيكي', answers: [ 'كاواكي' ] },
     { question: 'وعاء موموشيكي', answers: [ 'بوروتو' ] },
     {
       question: 'التينساي',
@@ -172,16 +176,16 @@ const gameData = [
     },
     { question: 'ابن فيجيتا', answers: [ 'ترانكس' ] },
     {
-      question: 'أمير السايان',
+      question: 'أمير السايان',
       answers: [ 'فيجيتا', 'فيغيتا', 'فيقيتا' ]
     },
-    { question: 'السايان الأسطوري', answers: [ 'برولي' ] },
-    { question: 'نائب روجر', answers: [ 'رايلي' ] },
-    { question: 'أخت أكاي', answers: [ 'سيرا' ] },
-    { question: 'أب سيلفا زولديك', answers: [ 'زينو' ] },
-    { question: 'أب زينو زولديك', answers: [ 'ماها' ] },
+    { question: 'السايان الأسطوري', answers: [ 'برولي' ] },
+    { question: 'نائب روجر', answers: [ 'رايلي' ] },
+    { question: 'أخت أكاي', answers: [ 'سيرا' ] },
+    { question: 'أب سيلفا زولديك', answers: [ 'زينو' ] },
+    { question: 'أب زينو زولديك', answers: [ 'ماها' ] },
     {
-      question: 'أب جين فريكس',
+      question: 'أب جين فريكس',
       answers: [
         'جين', 'غين',
         'قين', 'غين',
@@ -190,10 +194,10 @@ const gameData = [
         'جين'
       ]
     },
-    { question: 'بانكاي ياماموتو', answers: [ 'زانكا نو تاتشي' ] },
+    { question: 'بانكاي ياماموتو', answers: [ 'زانكا نو تاتشي', 'زانكا نو تاشي' ] },
     { question: 'شيكاي كيسكي', answers: [ 'بينيهيمي' ] },
     {
-      question: 'شيكاي أيزن',
+      question: 'شيكاي أيزن',
       answers: [
         'كيوكا سوغيستو',
         'كيوكا سوجيستو',
@@ -202,38 +206,42 @@ const gameData = [
     },
     { question: 'ملاحة الطاقم', answers: [ 'نامي' ] },
     {
-        question: 'أخت نامي',
+        question: 'أخت نامي',
         answers: [ 'نوجيكو', 'نوغيكو', 'نوقيكو', 'نوغيكو', 'نوجيكو', 'نوقيكو' ]
       },
-      { question: 'قائد العناكب', answers: [ 'كرولو' ] },
-      { question: 'قائد الثيران السوداء', answers: [ 'يامي' ] },
+      { question: 'قائد العناكب', answers: [ 'كرولو' ] },
+      { question: 'قائد الثيران السوداء', answers: [ 'يامي' ] },
       { question: 'مستخدم شينرا تينسي', answers: [ 'باين' ] },
       {
-        question: 'مستخدم إيدو تينسي',
+        question: 'مستخدم إيدو تينسي',
         answers: [ 'اوروتشيمارو', 'كابوتو', 'توبيراما' ]
       },
       { question: 'قبضة اللهب', answers: [ 'ايس' ] },
       { question: 'جراح الموت', answers: [ 'لاو' ] },
-      { question: 'أخت لاو', answers: [ 'لامي' ] },
+      { question: 'أخت لاو', answers: [ 'لامي' ] },
       { question: 'خال ليفاي', answers: [ 'كيني' ] },
       { question: 'معد كاراسونو', answers: [ 'توبيو' ] },
       { question: 'نجم كاراسونو', answers: [ 'اساهي' ] },
       { question: 'معذب العناكب', answers: [ 'فيتان' ] },
       { question: 'مكنسة شيزوكو', answers: [ 'ديمي' ] }
     ];
+
+
 const startGame = async (m) => {
-    if (gameState.active) return m.reply('اللعبة قيد التشغيل بالفعل.');
+    if (gameState.active) return; // Silent - no reply
     gameState.active = true;
     gameState.responses = {};
+    gameState.playerAttempts = {};
+    gameState.allPlayerMessages = {};
     nextQuestion(m);
 };
 
 const stopGame = async (m) => {
-    if (!gameState.active) return m.reply('لا توجد لعبة قيد التشغيل حالياً.');
+    if (!gameState.active) return; // Silent - no reply
     gameState.active = false;
     
     if (Object.keys(gameState.responses).length === 0) {
-        await m.reply('لم يربح أحد نقاطاً في هذه اللعبة.');
+        // Silent - no reply about no winners
     } else {
         let result = Object.entries(gameState.responses).map(([jid, points]) => {
             return `@${jid.split('@')[0]}: ${points} نقطة`;
@@ -245,27 +253,156 @@ const stopGame = async (m) => {
     }
 };
 
+const skipQuestion = async (m) => {
+    if (!gameState.active || gameState.currentQuestionIndex === -1) return;
+    
+    const currentQuestion = gameData[gameState.currentQuestionIndex];
+    const correctAnswers = currentQuestion.answers.join(' / ');
+    
+    await m.reply(`الإجابة: ${correctAnswers}`);
+    
+    // Move to next question after showing answer
+    setTimeout(() => {
+        nextQuestion(m);
+    }, 2000);
+};
+
 const nextQuestion = async (m) => {
+    // Reset question-specific tracking
+    gameState.playerAttempts = {};
+    gameState.allPlayerMessages = {};
+    gameState.answeredBy = null;
+    gameState.questionStartTime = Date.now();
+    
     gameState.currentQuestionIndex = Math.floor(Math.random() * gameData.length);
     await m.reply(`*س/${gameData[gameState.currentQuestionIndex].question}*`);
+};
+
+const normalizeText = (text) => {
+    return text.trim().toLowerCase().replace(/\s+/g, ' ');
+};
+
+const extractPossibleAnswers = (text) => {
+    // Split by common separators and clean each part
+    const separators = /[،,\s\/\\|&+\-]/;
+    const parts = text.split(separators)
+        .map(part => normalizeText(part))
+        .filter(part => part.length > 0);
+    
+    // Also include the full text as one answer
+    const fullText = normalizeText(text);
+    
+    return [...new Set([fullText, ...parts])]; // Remove duplicates
 };
 
 const checkAnswer = async (m) => {
     if (!gameState.active || gameState.currentQuestionIndex === -1) return;
     
-    const normalizedAnswer = m.text.trim().toLowerCase(); // Normalize user input
-    const correctAnswers = gameData[gameState.currentQuestionIndex].answers.map(answer => answer.toLowerCase()); // Normalize correct answers
+    const currentQuestion = gameData[gameState.currentQuestionIndex];
+    const correctAnswers = currentQuestion.answers.map(answer => normalizeText(answer));
+    const userJid = m.sender;
+    const messageTime = Date.now();
     
-    if (correctAnswers.includes(normalizedAnswer)) {
-        gameState.responses[m.sender] = (gameState.responses[m.sender] || 0) + 1;
-        nextQuestion(m);
+    // Track this player's message
+    if (!gameState.allPlayerMessages[userJid]) {
+        gameState.allPlayerMessages[userJid] = [];
+    }
+    gameState.allPlayerMessages[userJid].push({
+        text: m.text,
+        time: messageTime
+    });
+    
+    // Extract all possible answers from user's message
+    const userAnswers = extractPossibleAnswers(m.text);
+    
+    // Check if any of the user's answers match correct answers
+    const matchedAnswer = userAnswers.find(userAnswer => 
+        correctAnswers.some(correctAnswer => correctAnswer === userAnswer)
+    );
+    
+    if (matchedAnswer) {
+        // Check if this user already got this question right
+        if (gameState.answeredBy === userJid) {
+            return; // User already got this question right - silent
+        }
+        
+        // Check if someone else already answered correctly
+        if (gameState.answeredBy !== null) {
+            // Silent - no reply about being late
+            return;
+        }
+        
+        // This is the first correct answer
+        gameState.answeredBy = userJid;
+        gameState.responses[userJid] = (gameState.responses[userJid] || 0) + 1;
+        
+        await m.reply(`@${userJid.split('@')[0]} إجابة صحيحة! +1 نقطة`, null, {
+            mentions: [userJid]
+        });
+        
+        // Move to next question after a short delay
+        setTimeout(() => {
+            nextQuestion(m);
+        }, 2000);
+    } else {
+        // Track wrong attempts - but silently
+        if (!gameState.playerAttempts[userJid]) {
+            gameState.playerAttempts[userJid] = [];
+        }
+        gameState.playerAttempts[userJid].push({
+            answers: userAnswers,
+            time: messageTime
+        });
+    }
+};
+
+// Function to check if a player corrected themselves in recent messages
+const checkForCorrections = async (m) => {
+    if (!gameState.active || gameState.currentQuestionIndex === -1 || gameState.answeredBy !== null) return;
+    
+    const userJid = m.sender;
+    const userMessages = gameState.allPlayerMessages[userJid];
+    
+    if (!userMessages || userMessages.length < 2) return;
+    
+    const currentQuestion = gameData[gameState.currentQuestionIndex];
+    const correctAnswers = currentQuestion.answers.map(answer => normalizeText(answer));
+    
+    // Check the last few messages for corrections
+    const recentMessages = userMessages.slice(-3); // Check last 3 messages
+    
+    for (let i = 0; i < recentMessages.length; i++) {
+        const messageAnswers = extractPossibleAnswers(recentMessages[i].text);
+        const matchedAnswer = messageAnswers.find(answer => 
+            correctAnswers.some(correctAnswer => correctAnswer === answer)
+        );
+        
+        if (matchedAnswer && gameState.answeredBy === null) {
+            gameState.answeredBy = userJid;
+            gameState.responses[userJid] = (gameState.responses[userJid] || 0) + 1;
+            
+            await m.reply(`@${userJid.split('@')[0]} إجابة صحيحة! (من رسالة سابقة) +1 نقطة`, null, {
+                mentions: [userJid]
+            });
+            
+            setTimeout(() => {
+                nextQuestion(m);
+            }, 2000);
+            break;
+        }
     }
 };
 
 handler.all = async function(m) {
     if (m.text === ".مس") return startGame(m);
     if (m.text === ".سس") return stopGame(m);
-    checkAnswer(m);
+    if (m.text === ".سكيب") return skipQuestion(m);
+    
+    // Only process during active game
+    if (gameState.active) {
+        await checkAnswer(m);
+        await checkForCorrections(m);
+    }
 };
 
 export default handler;

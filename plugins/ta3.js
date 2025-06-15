@@ -480,77 +480,160 @@ let questionsAndAnswers = [
 ];
   
   let handler = m => m;
+
+let currentCount = 1;
+let gameState = {
+  active: false,
+  currentQuestion: '',
+  responses: {},
+  playerCorrectAnswers: {}, // Track correct answers per player for current question
+  questionStartTime: 0,
+  answeredBy: [] // Track who answered correctly
+};
+
+async function isAdmin(m, conn) {
+  if (!m.isGroup) return false;
+  try {
+    let groupMetadata = await conn.groupMetadata(m.chat);
+    let participants = groupMetadata.participants;
+    let admins = participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin');
+    return admins.some(admin => admin.id === m.sender);
+  } catch (error) {
+    console.error('Error fetching group metadata:', error);
+    return false;
+  }
+}
+
+const normalizeText = (text) => {
+  return text.trim().toLowerCase().replace(/\s+/g, ' ');
+};
+
+const extractPossibleAnswers = (text) => {
+  // Split by common separators and clean each part
+  const separators = /[،,\s\/\\|&+\-]/;
+  const parts = text.split(separators)
+    .map(part => normalizeText(part))
+    .filter(part => part.length > 0);
   
-  let currentCount = 1;
-  let gameState = {
-    active: false,
-    currentQuestion: '',
-    responses: {} 
-  };
+  // Also include the full text as one answer
+  const fullText = normalizeText(text);
   
-  async function isAdmin(m, conn) {
-    if (!m.isGroup) return false;
-    try {
-      let groupMetadata = await conn.groupMetadata(m.chat);
-      let participants = groupMetadata.participants;
-      let admins = participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin');
-      return admins.some(admin => admin.id === m.sender);
-    } catch (error) {
-      console.error('Error fetching group metadata:', error);
-      return false;
-    }
+  return [...new Set([fullText, ...parts])]; // Remove duplicates
+};
+
+const startGame = async (m) => {
+  if (gameState.active) {
+    return m.reply('اللعبة قيد التشغيل بالفعل.');
+  }
+
+  gameState.active = true;
+  gameState.responses = {};
+  gameState.playerCorrectAnswers = {};
+  gameState.answeredBy = [];
+  
+  let randomIndex = Math.floor(Math.random() * questionsAndAnswers.length);
+  gameState.currentQuestion = questionsAndAnswers[randomIndex].question;
+  gameState.questionStartTime = Date.now();
+  
+  await m.reply(`*${gameState.currentQuestion} 3/تع*`);
+};
+
+const stopGame = async (m) => {
+  if (!gameState.active) {
+    return m.reply('لا توجد لعبة قيد التشغيل حالياً.');
+  }
+
+  gameState.active = false;
+
+  if (Object.keys(gameState.responses).length === 0) {
+    await m.reply('لم يربح أحد نقاطاً في هذه اللعبة.');
+  } else {
+    let result = Object.entries(gameState.responses).map(([jid, points]) => {
+      return `@${jid.split('@')[0]}: ${points} نقطة`;
+    }).join('\n');
+
+    await m.reply(`اللعبة انتهت!\n\nالنقاط:\n${result}`, null, {
+      mentions: Object.keys(gameState.responses)
+    });
+  }
+
+  gameState.currentQuestion = '';
+};
+
+const nextQuestion = async (m) => {
+  // Reset question-specific tracking
+  gameState.playerCorrectAnswers = {};
+  gameState.answeredBy = [];
+  gameState.questionStartTime = Date.now();
+  
+  let randomIndex = Math.floor(Math.random() * questionsAndAnswers.length);
+  gameState.currentQuestion = questionsAndAnswers[randomIndex].question;
+  
+  setTimeout(async () => {
+    await m.reply(`*${gameState.currentQuestion} 3/تع*`);
+  }, 500);
+};
+
+const checkAnswer = async (m) => {
+  if (!gameState.active || !gameState.currentQuestion) return;
+  
+  const userJid = m.sender;
+  
+  // Check if user already answered this question correctly
+  if (gameState.answeredBy.includes(userJid)) {
+    return; // User already got this question right
   }
   
-  handler.all = async function(m, { conn }) {
-    if (/^\.متع$/i.test(m.text)) {
-      if (gameState.active) {
-        return m.reply('اللعبة قيد التشغيل بالفعل.');
-      }
+  // Get correct answers for current question
+  let correctAnswers = questionsAndAnswers.find(q => q.question === gameState.currentQuestion).answers;
+  let normalizedCorrectAnswers = correctAnswers.map(answer => normalizeText(answer));
   
-      gameState.active = true;
-      gameState.responses = {};
-      let randomIndex = Math.floor(Math.random() * questionsAndAnswers.length);
-      gameState.currentQuestion = questionsAndAnswers[randomIndex].question;
-      await m.reply(`*${gameState.currentQuestion} 3/تع*`);
-    } else if (/^\.ستع$/i.test(m.text)) {
-      if (!gameState.active) {
-        return m.reply('لا توجد لعبة قيد التشغيل حالياً.');
-      }
+  // Extract all possible answers from user's message
+  let userAnswers = extractPossibleAnswers(m.text);
   
-      gameState.active = false;
+  // Initialize player's correct answers if not exists
+  if (!gameState.playerCorrectAnswers[userJid]) {
+    gameState.playerCorrectAnswers[userJid] = new Set();
+  }
   
-      if (Object.keys(gameState.responses).length === 0) {
-        await m.reply('لم يربح أحد نقاطاً في هذه اللعبة.');
-      } else {
-        let result = Object.entries(gameState.responses).map(([jid, points]) => {
-          return `@${jid.split('@')[0]}: ${points} نقطة`;
-        }).join('\n');
-  
-        await m.reply(`اللعبة انتهت!\n\nالنقاط:\n${result}`, null, {
-          mentions: Object.keys(gameState.responses)
-        });
-      }
-  
-      gameState.currentQuestion = '';
-    } else if (gameState.active && gameState.currentQuestion) {
-      let correctAnswers = questionsAndAnswers.find(q => q.question === gameState.currentQuestion).answers;
-      let userAnswers = m.text.split(' ').map(answer => answer.trim());
-      let correctCount = userAnswers.filter(answer => correctAnswers.includes(answer)).length;
-  
-      if (correctCount >= 3) {
-        if (!gameState.responses[m.sender]) {
-          gameState.responses[m.sender] = 1;
-        } else {
-          gameState.responses[m.sender] += 1;
-        }
-        let randomIndex = Math.floor(Math.random() * questionsAndAnswers.length);
-        gameState.currentQuestion = questionsAndAnswers[randomIndex].question;
-        setTimeout(async () => {
-          await m.reply(`*${gameState.currentQuestion} 3/تع*`);
-        }, 500);
-      }
+  // Add any new correct answers to player's set
+  userAnswers.forEach(answer => {
+    const normalizedAnswer = normalizeText(answer);
+    if (normalizedCorrectAnswers.includes(normalizedAnswer)) {
+      gameState.playerCorrectAnswers[userJid].add(normalizedAnswer);
     }
-  };
+  });
   
-  export default handler;
+  // Check if player now has 3 or more correct answers
+  const correctCount = gameState.playerCorrectAnswers[userJid].size;
   
+  if (correctCount >= 3) {
+    // Award point and mark as answered
+    gameState.answeredBy.push(userJid);
+    if (!gameState.responses[userJid]) {
+      gameState.responses[userJid] = 1;
+    } else {
+      gameState.responses[userJid] += 1;
+    }
+    
+    await m.reply(`@${userJid.split('@')[0]} إجابة صحيحة! +1 نقطة (${correctCount} إجابات صحيحة)`, null, {
+      mentions: [userJid]
+    });
+    
+    // Move to next question
+    nextQuestion(m);
+  }
+  // No feedback for partially correct answers - silent monitoring
+};
+
+handler.all = async function(m, { conn }) {
+  if (/^\.متع$/i.test(m.text)) {
+    return startGame(m);
+  } else if (/^\.ستع$/i.test(m.text)) {
+    return stopGame(m);
+  } else if (gameState.active && gameState.currentQuestion) {
+    await checkAnswer(m);
+  }
+};
+
+export default handler;
