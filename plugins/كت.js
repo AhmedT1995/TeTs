@@ -7,7 +7,7 @@ async function isAdmin(m, conn) {
   try {
     let groupMetadata = await conn.groupMetadata(m.chat);
     let participants = groupMetadata.participants;
-    let admins = participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin');
+    let admins = participants.filter(p => p.admin);
     return admins.some(admin => admin.id === m.sender);
   } catch (error) {
     console.error('Error fetching group metadata:', error);

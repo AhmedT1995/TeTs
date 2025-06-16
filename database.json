@@ -1,5 +1,28 @@
 {
-  "users": {},
+  "users": {
+    "96176337375@s.whatsapp.net": {
+      "exp": 1398,
+      "limit": 10,
+      "level": 0,
+      "registered": false,
+      "banned": false,
+      "bannedMessageCount": 0,
+      "bannedReason": "",
+      "lastCommandTime": 1750103241837,
+      "commandCount": 1
+    },
+    "32472920170@s.whatsapp.net": {
+      "exp": 102,
+      "limit": 10,
+      "level": 0,
+      "registered": false,
+      "banned": false,
+      "bannedMessageCount": 0,
+      "bannedReason": "",
+      "lastCommandTime": 1750102224944,
+      "commandCount": 1
+    }
+  },
   "chats": {
     "120363419111007737@g.us": {
       "isBanned": false,
@@ -21,9 +44,43 @@
       "modoadmin": false,
       "simi": false,
       "expired": 0
+    },
+    "120363173129421994@newsletter": {
+      "isBanned": false,
+      "welcome": true,
+      "detect": true,
+      "detect2": false,
+      "sWelcome": "",
+      "sBye": "",
+      "sPromote": "",
+      "sDemote": "",
+      "antidelete": false,
+      "modohorny": true,
+      "autosticker": false,
+      "audios": true,
+      "antiviewonce": false,
+      "antiToxic": false,
+      "antiTraba": false,
+      "antiporno": false,
+      "modoadmin": false,
+      "simi": false,
+      "expired": 0
     }
   },
-  "stats": {},
+  "stats": {
+    "groupset.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1750101975576,
+      "lastSuccess": 1750101975576
+    },
+    "delete.js": {
+      "total": 0,
+      "success": 0,
+      "last": 1750103241839,
+      "lastSuccess": 0
+    }
+  },
   "msgs": {},
   "sticker": {},
   "settings": {

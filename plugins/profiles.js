@@ -64,7 +64,7 @@ async function checkAdminPermission(medoContext) {
     try {
         const groupMetadata = await medoContext.conn.groupMetadata(medoContext.chat);
         const groupAdmins = groupMetadata.participants
-            .filter(participant => participant.admin !== null)
+            .filter(participant => participant.admin)
             .map(admin => admin.id);
 
         if (!groupAdmins.includes(medoContext.sender)) {

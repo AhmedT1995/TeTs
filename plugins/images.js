@@ -10,7 +10,7 @@ let handler = async (m, { conn }) => {
   cooldown.add(m.sender);
   setTimeout(() => {
     cooldown.delete(m.sender);
-  }, 2000); // 5 seconds cooldown
+  }, 2000); 
 
   try {
     let res = (await axios.get(`https://raw.githubusercontent.com/Seiyra/imagesfjsfasfa/refs/heads/main/okay.js`)).data;

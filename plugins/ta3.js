@@ -1,4 +1,9 @@
-let questionsAndAnswers = [
+import fs from 'fs';
+
+const dataPath = './plugins/ta3-data.json';
+let questionsAndAnswers = [];
+
+const defaultQuestions = [
   {
     question: 'هاشيرا',
     answers: [
@@ -67,7 +72,7 @@ let questionsAndAnswers = [
       'قين',    'غين',     'جين',
       'توسين',  'ايتشيفو', 'ايشين',
       'يوزو',   'كارين',   'فوسو',
-      'ميتوا',  'ماساكي',  'ياماموتو',
+      'ميتو',  'ماساكي',  'ياماموتو',
       'زاراكي', 'كيوراكو', 'موموي',
       'هيوري',  'هوري'
     ]
@@ -170,7 +175,7 @@ let questionsAndAnswers = [
   },
   {
     question: 'اوزوماكي',
-    answers: [ 'ميتوا', 'فوسو', 'كارين', 'كوشينا' ]
+    answers: [ 'ميتو', 'فوسو', 'كارين', 'كوشينا' ]
   },
   {
     question: 'تشيبوكاي',
@@ -202,7 +207,7 @@ let questionsAndAnswers = [
     question: 'سينجو',
     answers: [
       'ايتاما',   'ناواكي',
-      'توكا',     'ميتوا',
+      'توكا',     'ميتو',
       'تسونادي',  'هاشيراما',
       'توبيراما'
     ]
@@ -265,7 +270,7 @@ let questionsAndAnswers = [
     answers: [
       'غون', 'جون',   'قون',
       'غين', 'جين',   'قين',
-      'ابي', 'ميتوا', 'جين',
+      'ابي', 'ميتو', 'جين',
       'غين', 'قين',   'قين',
       'غين', 'جين',   'جون',
       'غون', 'قون'
@@ -478,25 +483,49 @@ let questionsAndAnswers = [
     answers: [ 'ساب', 'بارا', 'جينثيرو', 'غينثيرو', 'قينثيرو' ]
   }
 ];
-  
-  let handler = m => m;
 
-let currentCount = 1;
+const loadQuestions = () => {
+  try {
+    if (fs.existsSync(dataPath)) {
+      const data = fs.readFileSync(dataPath, 'utf8');
+      questionsAndAnswers = JSON.parse(data);
+    } else {
+      questionsAndAnswers = defaultQuestions;
+      fs.writeFileSync(dataPath, JSON.stringify(questionsAndAnswers, null, 2));
+    }
+  } catch (error) {
+    console.error('Error loading ta3 questions:', error);
+    questionsAndAnswers = defaultQuestions;
+  }
+};
+
+const saveQuestions = () => {
+  try {
+    fs.writeFileSync(dataPath, JSON.stringify(questionsAndAnswers, null, 2));
+  } catch (error) {
+    console.error('Error saving ta3 questions:', error);
+  }
+};
+
+loadQuestions();
+
+let handler = m => m;
+
 let gameState = {
   active: false,
   currentQuestion: '',
   responses: {},
-  playerCorrectAnswers: {}, // Track correct answers per player for current question
+  playerCorrectAnswers: {},
   questionStartTime: 0,
-  answeredBy: [] // Track who answered correctly
+  answeredBy: []
 };
 
 async function isAdmin(m, conn) {
   if (!m.isGroup) return false;
   try {
-    let groupMetadata = await conn.groupMetadata(m.chat);
-    let participants = groupMetadata.participants;
-    let admins = participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin');
+    const groupMetadata = await conn.groupMetadata(m.chat);
+    const participants = groupMetadata.participants;
+    const admins = participants.filter(p => p.admin);
     return admins.some(admin => admin.id === m.sender);
   } catch (error) {
     console.error('Error fetching group metadata:', error);
@@ -509,21 +538,140 @@ const normalizeText = (text) => {
 };
 
 const extractPossibleAnswers = (text) => {
-  // Split by common separators and clean each part
   const separators = /[،,\s\/\\|&+\-]/;
   const parts = text.split(separators)
     .map(part => normalizeText(part))
     .filter(part => part.length > 0);
-  
-  // Also include the full text as one answer
   const fullText = normalizeText(text);
+  return [...new Set([fullText, ...parts])];
+};
+
+const addAnswer = async (m, newAnswer, conn) => {
+  if (!gameState.active || !gameState.currentQuestion) {
+    return m.reply('لا توجد لعبة قيد التشغيل حالياً.');
+  }
+
+  const userIsAdmin = await isAdmin(m, conn);
+  if (!userIsAdmin) {
+    return m.reply('فقط المشرفون يمكنهم إضافة إجابات جديدة.');
+  }
+
+  if (!newAnswer || newAnswer.trim().length === 0) {
+    return m.reply('يرجى كتابة الإجابة التي تريد إضافتها.\nمثال: .ضف ناروتو');
+  }
+
+  let questionIndex = questionsAndAnswers.findIndex(q => q.question === gameState.currentQuestion);
+  if (questionIndex === -1) {
+    return m.reply('خطأ: لم يتم العثور على السؤال الحالي.');
+  }
+
+  const normalizedNewAnswer = normalizeText(newAnswer);
+  const existingAnswers = questionsAndAnswers[questionIndex].answers.map(answer => normalizeText(answer));
+  if (existingAnswers.includes(normalizedNewAnswer)) {
+    return m.reply('هذه الإجابة موجودة بالفعل.');
+  }
+
+  questionsAndAnswers[questionIndex].answers.push(newAnswer.trim());
+  saveQuestions();
+  await m.reply(`تمت إضافة "${newAnswer.trim()}" بشكل دائم كإجابة صحيحة للسؤال الحالي: ${gameState.currentQuestion}`);
+};
+
+const removeAnswer = async (m, answerToRemove, conn) => {
+    const userIsAdmin = await isAdmin(m, conn);
+    if (!userIsAdmin) {
+        return m.reply('فقط المشرفون يمكنهم حذف الإجابات.');
+    }
+
+    if (!gameState.active || !gameState.currentQuestion) {
+        return m.reply('لا توجد لعبة قيد التشغيل حالياً لحذف إجابة منها.');
+    }
+
+    if (!answerToRemove) {
+        return m.reply('يرجى تحديد الإجابة التي تريد حذفها.');
+    }
+
+    const questionIndex = questionsAndAnswers.findIndex(q => q.question === gameState.currentQuestion);
+    if (questionIndex === -1) {
+        return m.reply('خطأ: لم يتم العثور على السؤال الحالي.');
+    }
+
+    const normalizedAnswerToRemove = normalizeText(answerToRemove);
+    const answerIndex = questionsAndAnswers[questionIndex].answers.findIndex(ans => normalizeText(ans) === normalizedAnswerToRemove);
+
+    if (answerIndex > -1) {
+        const removedAnswer = questionsAndAnswers[questionIndex].answers[answerIndex];
+        questionsAndAnswers[questionIndex].answers.splice(answerIndex, 1);
+        saveQuestions();
+        await m.reply(`تم حذف الإجابة "${removedAnswer}" بشكل دائم من السؤال الحالي.`);
+    } else {
+        await m.reply(`لم يتم العثور على الإجابة "${answerToRemove}" في السؤال الحالي.`);
+    }
+};
+
+const addQuestion = async (m, newQuestionData, conn) => {
+    const userIsAdmin = await isAdmin(m, conn);
+    if (!userIsAdmin) {
+        return m.reply('فقط المشرفون يمكنهم إضافة أسئلة جديدة.');
+    }
+
+    const parts = newQuestionData.split('|');
+    if (parts.length < 2) {
+        return m.reply('يرجى استخدام الصيغة الصحيحة: .منيو-اضافة السؤال | الإجابة1,الإجابة2,...');
+    }
+
+    const question = parts[0].trim();
+    const answers = parts[1].split(',').map(ans => ans.trim()).filter(ans => ans.length > 0);
+
+    if (!question || answers.length === 0) {
+        return m.reply('السؤال أو الإجابات غير صالحة.');
+    }
+
+    const normalizedQuestion = normalizeText(question);
+    if (questionsAndAnswers.some(q => normalizeText(q.question) === normalizedQuestion)) {
+        return m.reply('هذا السؤال موجود بالفعل.');
+    }
+
+    questionsAndAnswers.push({ question, answers });
+    saveQuestions();
+    await m.reply(`تمت إضافة السؤال الجديد بشكل دائم:\n*السؤال:* ${question}\n*الإجابات:* ${answers.join(', ')}`);
+};
+
+const listQuestions = async (m) => {
+    if (questionsAndAnswers.length === 0) {
+        return m.reply('لا توجد أسئلة متاحة حالياً.');
+    }
+
+    let list = '📋 *قائمة الأسئلة والأجوبة* 📋\n\n';
+    questionsAndAnswers.forEach((qa, index) => {
+        list += `*${index + 1}. السؤال:* ${qa.question}\n`;
+        list += `   - *الإجابات:* ${qa.answers.join(', ')}\n\n`;
+    });
+
+    await m.reply(list);
+};
+
+const skipQuestion = async (m) => {
+  if (!gameState.active || !gameState.currentQuestion) {
+    return m.reply('لا توجد لعبة قيد التشغيل حالياً.');
+  }
+
+  let qa = questionsAndAnswers.find(q => q.question === gameState.currentQuestion);
+  if (!qa) {
+    await m.reply('لم يتم العثور على السؤال الحالي، الانتقال إلى التالي.');
+    return nextQuestion(m);
+  }
+
+  await m.reply(`تم تخطي السؤال!\n*السؤال:* ${qa.question}\n*الإجابات الصحيحة كانت:* ${qa.answers.join(', ')}`);
   
-  return [...new Set([fullText, ...parts])]; // Remove duplicates
+  nextQuestion(m);
 };
 
 const startGame = async (m) => {
   if (gameState.active) {
     return m.reply('اللعبة قيد التشغيل بالفعل.');
+  }
+  if (questionsAndAnswers.length === 0) {
+    return m.reply('لا توجد أسئلة لبدء اللعبة. يرجى إضافة بعض الأسئلة أولاً.');
   }
 
   gameState.active = true;
@@ -561,10 +709,14 @@ const stopGame = async (m) => {
 };
 
 const nextQuestion = async (m) => {
-  // Reset question-specific tracking
   gameState.playerCorrectAnswers = {};
   gameState.answeredBy = [];
   gameState.questionStartTime = Date.now();
+  
+  if (questionsAndAnswers.length === 0) {
+    gameState.active = false;
+    return m.reply('نفدت الأسئلة! انتهت اللعبة.');
+  }
   
   let randomIndex = Math.floor(Math.random() * questionsAndAnswers.length);
   gameState.currentQuestion = questionsAndAnswers[randomIndex].question;
@@ -579,24 +731,22 @@ const checkAnswer = async (m) => {
   
   const userJid = m.sender;
   
-  // Check if user already answered this question correctly
   if (gameState.answeredBy.includes(userJid)) {
-    return; // User already got this question right
+    return;
   }
   
-  // Get correct answers for current question
-  let correctAnswers = questionsAndAnswers.find(q => q.question === gameState.currentQuestion).answers;
+  let qa = questionsAndAnswers.find(q => q.question === gameState.currentQuestion);
+  if (!qa) return;
+  
+  let correctAnswers = qa.answers;
   let normalizedCorrectAnswers = correctAnswers.map(answer => normalizeText(answer));
   
-  // Extract all possible answers from user's message
   let userAnswers = extractPossibleAnswers(m.text);
   
-  // Initialize player's correct answers if not exists
   if (!gameState.playerCorrectAnswers[userJid]) {
     gameState.playerCorrectAnswers[userJid] = new Set();
   }
   
-  // Add any new correct answers to player's set
   userAnswers.forEach(answer => {
     const normalizedAnswer = normalizeText(answer);
     if (normalizedCorrectAnswers.includes(normalizedAnswer)) {
@@ -604,11 +754,9 @@ const checkAnswer = async (m) => {
     }
   });
   
-  // Check if player now has 3 or more correct answers
   const correctCount = gameState.playerCorrectAnswers[userJid].size;
   
   if (correctCount >= 3) {
-    // Award point and mark as answered
     gameState.answeredBy.push(userJid);
     if (!gameState.responses[userJid]) {
       gameState.responses[userJid] = 1;
@@ -620,17 +768,30 @@ const checkAnswer = async (m) => {
       mentions: [userJid]
     });
     
-    // Move to next question
     nextQuestion(m);
   }
-  // No feedback for partially correct answers - silent monitoring
 };
 
-handler.all = async function(m, { conn }) {
+handler.all = async function(m, extra) {
   if (/^\.متع$/i.test(m.text)) {
     return startGame(m);
   } else if (/^\.ستع$/i.test(m.text)) {
     return stopGame(m);
+  } else if (/^\.ضف\s+(.+)$/i.test(m.text)) {
+    const match = m.text.match(/^\.ضف\s+(.+)$/i);
+    const newAnswer = match[1];
+    return addAnswer(m, newAnswer, this);
+  } else if (/^\.سكب$/i.test(m.text)) {
+    return skipQuestion(m);
+  } else if (/^\.حذف\s+(.+)$/i.test(m.text)) {
+    const match = m.text.match(/^\.حذف\s+(.+)$/i);
+    return removeAnswer(m, match[1], this);
+  } else if (/^\.منيو-اضافة\s+(.+)$/i.test(m.text)) {
+    const match = m.text.match(/^\.منيو-اضافة\s+(.+)$/i);
+    const newQuestionData = match[1];
+    return addQuestion(m, newQuestionData, this);
+  } else if (/^\.قائمة-الاسئلة$/i.test(m.text)) {
+    return listQuestions(m);
   } else if (gameState.active && gameState.currentQuestion) {
     await checkAnswer(m);
   }
