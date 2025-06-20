@@ -1,25 +1,10 @@
 import axios from 'axios';
 
-let cooldown = new Set();
-
 let handler = async (m, { conn }) => {
-  if (cooldown.has(m.sender)) {
-    return await conn.sendMessage(m.chat, { text: '⏳ يرجى الانتظار ثانيتين قبل استخدام هذا الأمر مرة أخرى.' }, { quoted: m });
-  }
-
-  cooldown.add(m.sender);
-  setTimeout(() => {
-    cooldown.delete(m.sender);
-  }, 0); 
-
   try {
     let res = (await axios.get(`https://raw.githubusercontent.com/Seiyra/imagesfjsfasfa/refs/heads/main/okay.js`)).data;
 
-    console.log(res);
-
-    if (!Array.isArray(res)) {
-      throw new Error('Response is not an array.');
-    }
+    if (!Array.isArray(res)) throw new Error('Response is not an array.');
 
     let url = res[Math.floor(Math.random() * res.length)];
 
