@@ -1,9 +1,8 @@
 import fetch from 'node-fetch';
-import { addExif } from '../lib/sticker.js';
 import { Sticker } from 'wa-sticker-formatter';
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-  let stiker = false;
+  let sticker = false;
   try {
     let [packname, ...author] = args.join(' ').split(/!|\|/);
     author = (author || []).join('|');
@@ -12,41 +11,51 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
     if (/webp/g.test(mime)) {
       let img = await q.download?.();
-      stiker = await addExif(img, packname || global.packname, author || global.author);
+      sticker = await createSticker(img, null, packname || global.packname, author || global.author, false);
     } else if (/image/g.test(mime)) {
       let img = await q.download?.();
-      stiker = await createSticker(img, false, packname || global.packname, author || global.author);
-    } else if (/video/g.test(mime) || /gif/g.test(mime)) {
-      let img = await q.download?.();
-      if ((q.msg || q).seconds > 7) return m.reply('*Video or GIF cannot be longer than 7 seconds*');
-      stiker = await createSticker(img, false, packname || global.packname, author || global.author, true); // Animated GIF/video sticker
+      sticker = await createSticker(img, null, packname || global.packname, author || global.author, false);
+    } else if (/video|gif/g.test(mime)) {
+      let video = await q.download?.();
+      if ((q.msg || q).seconds > 7) return m.reply('*⚠️ لا يمكن أن يتجاوز الفيديو 7 ثوانٍ*');
+      sticker = await createSticker(video, null, packname || global.packname, author || global.author, true);
     } else if (args[0] && isUrl(args[0])) {
-      stiker = await createSticker(false, args[0], packname || global.packname, author);
+      sticker = await createSticker(null, args[0], packname || global.packname, author || global.author, false);
     } else {
-      throw `*RESPOND TO AN IMAGE, VIDEO, OR GIF WITH ${usedPrefix + command}*`;
+      throw `*🔁 أرسل صورة، فيديو (أقل من 7 ثواني)، أو رابط صورة مع الأمر: ${usedPrefix + command}*`;
     }
   } catch (e) {
     console.error(e);
-    stiker = '*Failed to create sticker*';
+    sticker = '*❌ فشل إنشاء الملصق*';
   } finally {
-    if (stiker instanceof Buffer) {
-      await conn.sendMessage(m.chat, { sticker: stiker }, { quoted: m });
+    if (sticker instanceof Buffer) {
+      await conn.sendMessage(m.chat, { sticker }, { quoted: m });
     } else {
-      m.reply(stiker);
+      m.reply(sticker);
     }
   }
 };
 
-handler.help = ['sfull'];
+handler.help = ['ملصق', 'ملصقي'];
 handler.tags = ['sticker'];
-handler.command = ['ملصق','ملصقي'];
+handler.command = ['ملصق', 'ملصقي'];
+
 export default handler;
 
 const isUrl = (text) => {
-  return /https?:\/\/\S+\.(jpg|jpeg|png|gif)/i.test(text);
+  return /https?:\/\/\S+\.(jpg|jpeg|png|gif|webp)/i.test(text);
 };
 
-async function createSticker(img, url, packName, authorName, animated = false, quality = 20) {
-  let stickerMetadata = { type: animated ? 'full' : 'default', pack: packName, author: authorName, quality };
-  return new Sticker(img ? img : url, stickerMetadata).toBuffer();
+async function createSticker(img, url, packName, authorName, animated = false, quality = 80) {
+  const sticker = new Sticker(img || url, {
+    pack: packName || "بوت احمد",
+    author: authorName || "AhmadT",
+    type: animated ? 'full' : 'default',
+    categories: ['💬'],
+    id: `sticker-${Date.now()}`,
+    quality,
+    background: '#00000000'
+  });
+
+  return await sticker.toBuffer();
 }
