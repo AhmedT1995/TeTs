@@ -103,7 +103,7 @@ const handler = async (m, { conn, command, text, args, usedPrefix }) => {
 
         乂───『 *U S E R*』───乂
         ⛥ *Rank:* User
-        ⛥ *Owner:* Elta/+96176337375
+        ⛥ *Owner:* Hack/+966581998999
         ╰──────────⳹
 
 ╭───────⳹
