@@ -1,21 +1,13 @@
-let handler = async (m, { conn, participants }) => {
-    // التحقق إذا الشات موجود في قاعدة البيانات
-    if (!(m.chat in global.DATABASE._data.chats)) 
-        return m.reply('*هذا الشات غير مسجل في قاعدة البيانات!*');
-    
-    let chat = global.DATABASE._data.chats[m.chat];
+import fs from 'fs';
 
-    // التحقق إذا الشات محظور مسبقًا
-    if (chat.isBanned) 
-        return m.reply('*هذا الشات محظور مسبقًا*\n*إذا كنت تريد رفع الحظر استخدم /unbanchat*');
+const handler = async (m) => {
+  global.db.data.chats[m.chat].isBanned = true;
+  m.reply("The chat has been banned."); // Replace with your desired message
+};
 
-    // تفعيل الحظر
-    chat.isBanned = true;
-    m.reply('*تم حظر هذا الشات بقرار من مسؤول المجموعة*');
-}
-
+handler.help = ['banchat'];
+handler.tags = ['owner'];
 handler.command = /^banchat$/i;
-handler.group = true;
-handler.admin = true;
+handler.rowner = true;
 
-module.exports = handler;
+export default handler;
