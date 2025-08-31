@@ -1,8 +1,7 @@
-import fs from 'fs';
-
 const handler = async (m) => {
+  if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = {};
   global.db.data.chats[m.chat].isBanned = true;
-  m.reply("The chat has been banned."); // Replace with your desired message
+  m.reply("✅ هذا الشات تم حظره، البوت ما راح يرد هنا.");
 };
 
 handler.help = ['banchat'];
